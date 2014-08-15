@@ -1,0 +1,230 @@
+/* 'digipass_table' styles */
+
+/* Style: default */
+table.digipass-default {
+    border-collapse: collapse;
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    color: #333;
+}
+
+table.digipass-default thead tr th {
+    text-transform: uppercase;
+    background: #e2e2e2;
+}
+
+table.digipass-default tfoot tr th, table.digipass-default tfoot tr td {
+    text-transform: uppercase;
+    color: #000;
+    font-weight: bold;
+}
+
+table.digipass-default tfoot tr th {
+    width: 20%;
+}
+
+table.digipass-default tfoot tr td {
+    width: 80%;
+}
+
+table.digipass-default td, table.digipass-default th {
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+    line-height: 1.8em;
+    vertical-align: top;
+    width: 20%;
+}
+
+table.digipass-default tr.odd th, table.digipass-default tr.odd td {
+    background: #efefef;
+}
+
+table.digipass-default tbody td:nth-child(1) {
+    text-align: center;
+}
+
+/* Style: default - END */
+
+/* Style: mercury */
+table.digipass-mercury {
+    overflow: hidden;
+    border: 1px solid #d3d3d3;
+    background: #fefefe;
+    width: 100%;
+    margin: 5% auto 0;
+    -moz-border-radius: 5px; /* FF1+ */
+    -webkit-border-radius: 5px; /* Saf3-4 */
+    border-radius: 5px;
+    -moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+    -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+table.digipass-mercury th, table.digipass-mercury td {
+    padding: 10px 10px 10px;
+    text-align: center;
+}
+
+table.digipass-mercury th {
+    padding-top: 10px;
+    text-shadow: 1px 1px 1px #fff;
+    background: #e8eaeb;
+}
+
+table.digipass-mercury td {
+    border-top: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+}
+
+table.digipass-mercury tr.odd-row td {
+    background: #f6f6f6;
+}
+
+table.digipass-mercury tbody td:nth-child(1) {
+    text-align: center;
+}
+
+table.digipass-mercury td.last {
+    border-right: none;
+}
+
+table.digipass-mercury td {
+    background: -moz-linear-gradient(100% 25% 90deg, #fefefe, #f9f9f9);
+    background: -webkit-gradient(linear, 0% 0%, 0% 25%, from(#f9f9f9), to(#fefefe));
+}
+
+table.digipass-mercury tr.odd-row td {
+    background: -moz-linear-gradient(100% 25% 90deg, #f6f6f6, #f1f1f1);
+    background: -webkit-gradient(linear, 0% 0%, 0% 25%, from(#f1f1f1), to(#f6f6f6));
+}
+
+table.digipass-mercury th {
+    background: -moz-linear-gradient(100% 20% 90deg, #e8eaeb, #ededed);
+    background: -webkit-gradient(linear, 0% 0%, 0% 20%, from(#ededed), to(#e8eaeb));
+}
+
+table.digipass-mercury tr:first-child th.first {
+    -moz-border-radius-topleft: 5px;
+    -webkit-border-top-left-radius: 5px; /* Saf3-4 */
+}
+
+table.digipass-mercury tr:first-child th.last {
+    -moz-border-radius-topright: 5px;
+    -webkit-border-top-right-radius: 5px; /* Saf3-4 */
+}
+
+table.digipass-mercury tr:last-child td.first {
+    -moz-border-radius-bottomleft: 5px;
+    -webkit-border-bottom-left-radius: 5px; /* Saf3-4 */
+}
+
+table.digipass-mercury tr:last-child td.last {
+    -moz-border-radius-bottomright: 5px;
+    -webkit-border-bottom-right-radius: 5px; /* Saf3-4 */
+}
+
+/* Style: mercury - END */
+
+/* Style: mars */
+table.digipass-mars {
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+table.digipass-mars tr:last-child td:last-child {
+    -moz-border-radius-bottomright: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+table.digipass-mars tr:first-child td:first-child {
+    -moz-border-radius-topleft: 3px;
+    -webkit-border-top-left-radius: 3px;
+    border-top-left-radius: 3px;
+}
+
+table.digipass-mars tr:first-child td:last-child {
+    -moz-border-radius-topright: 3px;
+    -webkit-border-top-right-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+table.digipass-mars tr:last-child td:first-child {
+    -moz-border-radius-bottomleft: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+table.digipass-mars tbody td:nth-child(1) {
+    text-align: center;
+}
+
+table.digipass-mars tr:hover td {
+
+}
+
+table.digipass-mars tr:nth-child(odd) {
+    background-color: #efc8b3;
+}
+
+table.digipass-mars tr:nth-child(even) {
+    background-color: #efe7e3;
+}
+
+table.digipass-mars td {
+    vertical-align: middle;
+    border: 1px solid #5f5f5f;
+    border-width: 0px 1px 1px 0px;
+    text-align: left;
+    padding: 10px;
+    font-weight: normal;
+    color: #000000;
+}
+
+table.digipass-mars tr:last-child td {
+    border-width: 0px 1px 0px 0px;
+}
+
+table.digipass-mars tr td:last-child {
+    border-width: 0px 0px 1px 0px;
+}
+
+table.digipass-mars tr:last-child td:last-child {
+    border-width: 0px 0px 0px 0px;
+}
+
+table.digipass-mars thead th {
+    background: -o-linear-gradient(bottom, #f08b53 5%, #e14817 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f08b53), color-stop(1, #e14817));
+    background: -moz-linear-gradient(center top, #f08b53 5%, #e14817 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f08b53", endColorstr="#e14817");
+    background: -o-linear-gradient(top, #f08b53, e14817);
+
+    background-color: #f08b53;
+    border: 0px solid #5f5f5f;
+    text-align: center;
+    border-width: 0px 0px 1px 1px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+table.digipass-mars thead:hover th {
+    background: -o-linear-gradient(bottom, #f08b53 5%, #e14817 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f08b53), color-stop(1, #e14817));
+    background: -moz-linear-gradient(center top, #f08b53 5%, #e14817 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f08b53", endColorstr="#e14817");
+    background: -o-linear-gradient(top, #f08b53, e14817);
+
+    background-color: #f08b53;
+}
+
+table.digipass-mars thead th:first-child {
+    border-width: 0px 0px 1px 0px;
+}
+
+table.digipass-mars thead th:last-child {
+    border-width: 0px 0px 1px 1px;
+}
+
+/* Style: mars - END */
