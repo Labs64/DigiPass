@@ -16,16 +16,16 @@ define('API_KEY', '31c7bc4e-90ff-44fb-9f07-b88eb06ed9dc');
 
 if (is_admin()) {
     // Add the options page and menu item.
-    add_action('admin_menu', 'add_plugin_page');
-    add_action('admin_init', 'page_init');
+    add_action('admin_menu', 'dp_add_plugin_page');
+    add_action('admin_init', 'dp_page_init');
 
     // Add an action link pointing to the options page.
     $plugin_basename = plugin_basename(plugin_dir_path(__FILE__) . 'digipass.php');
-    add_filter('plugin_action_links_' . $plugin_basename, 'add_action_links');
+    add_filter('plugin_action_links_' . $plugin_basename, 'dp_add_action_links');
 
     // Load admin style sheet and JavaScript.
-    add_action('admin_enqueue_scripts', 'enqueue_admin_styles');
-    add_action('admin_enqueue_scripts', 'enqueue_admin_scripts');
+    add_action('admin_enqueue_scripts', 'dp_enqueue_admin_styles');
+    add_action('admin_enqueue_scripts', 'dp_enqueue_admin_scripts');
 
     // Get media data callback registration
     add_action('wp_ajax_validate', 'validate_callback');
@@ -35,7 +35,7 @@ if (is_admin()) {
 /**
  * Add settings action link to the plugins page.
  */
-function add_action_links($links)
+function dp_add_action_links($links)
 {
     return array_merge(
         array(
@@ -48,7 +48,7 @@ function add_action_links($links)
 /**
  * Add options page
  */
-function add_plugin_page()
+function dp_add_plugin_page()
 {
     global $plugin_screen_hook_suffix;
     $plugin_screen_hook_suffix = add_options_page(
@@ -56,7 +56,7 @@ function add_plugin_page()
         __('DigiPass', DP_SLUG),
         'manage_options',
         DP_SLUG,
-        'create_admin_page'
+        'dp_create_admin_page'
     );
 }
 
@@ -65,7 +65,7 @@ function add_plugin_page()
  *
  * @return    null    Return early if no settings page is registered.
  */
-function enqueue_admin_styles()
+function dp_enqueue_admin_styles()
 {
     global $plugin_screen_hook_suffix;
 
@@ -85,7 +85,7 @@ function enqueue_admin_styles()
  *
  * @return    null    Return early if no settings page is registered.
  */
-function enqueue_admin_scripts()
+function dp_enqueue_admin_scripts()
 {
     global $plugin_screen_hook_suffix;
 
@@ -103,7 +103,7 @@ function enqueue_admin_scripts()
 /**
  * Options page callback
  */
-function create_admin_page()
+function dp_create_admin_page()
 {
     ?>
     <div class="wrap" xmlns="http://www.w3.org/1999/html">
@@ -115,19 +115,19 @@ function create_admin_page()
             <?php
             // This prints out all hidden setting fields
             settings_fields('DP_OPTIONS_GROUP');
-            settings_fields_hidden();
+            dp_settings_fields_hidden();
             do_settings_sections(DP_SLUG);
             submit_button();
             ?>
         </form>
         <hr/>
         <?php
-        print_reference_section();
+        dp_print_reference_section();
         ?>
     </div>
     <div class="info_menu">
         <?php
-        print_feedback_section();
+        dp_print_feedback_section();
         ?>
     </div>
 <?php
@@ -136,7 +136,7 @@ function create_admin_page()
 /**
  * Print sections divider
  */
-function print_divider()
+function dp_print_divider()
 {
     ?>
     <hr/>
@@ -146,14 +146,14 @@ function print_divider()
 /**
  * Print the Common-Section info text
  */
-function print_common_section_info()
+function dp_print_common_section_info()
 {
 }
 
 /**
  * Print the feedback section
  */
-function print_feedback_section()
+function dp_print_feedback_section()
 {
     ?>
     <h3><?php _e('Feedback', DP_SLUG); ?></h3>
@@ -174,25 +174,25 @@ function print_feedback_section()
 /**
  * Print the reference section
  */
-function print_reference_section()
+function dp_print_reference_section()
 {
 }
 
 /**
  * Register and add settings
  */
-function page_init()
+function dp_page_init()
 {
     register_setting(
         'DP_OPTIONS_GROUP', // Option group
         DP_OPTIONS, // Option name
-        'sanitize' // Sanitize
+        'dp_sanitize' // dp_sanitize
     );
 
     add_settings_section(
         'DP_COMMON_SETTINGS', // ID
         __('DigiPass Settings', DP_SLUG), // Title
-        'print_common_section_info', // Callback
+        'dp_print_common_section_info', // Callback
         DP_SLUG // Page
     );
 
@@ -210,29 +210,29 @@ function page_init()
 }
 
 /**
- * Sanitize each setting field as needed
+ * dp_sanitize each setting field as needed
  *
  * @param array $input Contains all settings fields as array keys
  */
-function sanitize($input)
+function dp_sanitize($input)
 {
-    $input['dp_netlicensing_apikey'] = sanitize_text_field($input['dp_netlicensing_apikey']);
+    $input['dp_netlicensing_apikey'] = dp_sanitize_text_field($input['dp_netlicensing_apikey']);
 
     return $input;
 }
 
 /**
  */
-function settings_fields_hidden()
+function dp_settings_fields_hidden()
 {
-    print_settings_field_hidden('dp_option2');
+    dp_print_settings_field_hidden('dp_option2');
 }
 
 /**
  */
-function print_settings_field_hidden($id)
+function dp_print_settings_field_hidden($id)
 {
-    $value = get_single_option($id);
+    $value = dp_get_single_option($id);
     echo "<input type='hidden' id='$id' name='DP_OPTIONS[$id]' value='$value' />";
 }
 
@@ -242,7 +242,7 @@ function dp_text_field_callback($args)
 {
     $id = $args['id'];
     $description = $args['description'];
-    $value = get_single_option($id);
+    $value = dp_get_single_option($id);
     echo "<input type='text' id='$id' name='DP_OPTIONS[$id]' value='$value' class='regular-text' />";
     echo "<p class='description'>$description</p>";
 }
@@ -252,7 +252,7 @@ function dp_checkbox_field_callback($args)
     $id = $args['id'];
     $caption = $args['caption'];
     $description = $args['description'];
-    $value = get_single_option($id);
+    $value = dp_get_single_option($id);
     echo "<input type='checkbox' id='$id' name='DP_OPTIONS[$id]' value='1' class='code' " . checked(1, $value, false) . " /> $caption";
     echo "<p class='description'>$description</p>";
 }
@@ -261,7 +261,7 @@ function dp_checkbox_field_callback($args)
  * Returns default options.
  * If you override the options here, be careful to use escape characters!
  */
-function get_default_options()
+function dp_get_default_options()
 {
     $default_options = array(
         'dp_netlicensing_apikey' => '',
@@ -273,12 +273,12 @@ function get_default_options()
 /**
  * Retrieves (and sanitises) options
  */
-function get_options()
+function dp_get_options()
 {
-    $options = get_default_options();
+    $options = dp_get_default_options();
     $stored_options = get_option(DP_OPTIONS);
     if (!empty($stored_options)) {
-        sanitize($stored_options);
+        dp_sanitize($stored_options);
         $options = wp_parse_args($stored_options, $options);
     }
     update_option(DP_OPTIONS, $options);
@@ -288,18 +288,18 @@ function get_options()
 /**
  * Retrieves single option
  */
-function get_single_option($name)
+function dp_get_single_option($name)
 {
-    $options = get_options();
+    $options = dp_get_options();
     return $options[$name];
 }
 
 /**
  * Set single option value
  */
-function set_single_option($name, $value)
+function dp_set_single_option($name, $value)
 {
-    $options = get_options();
+    $options = dp_get_options();
     $options[$name] = $value;
     update_option(DP_OPTIONS, $options);
 }
