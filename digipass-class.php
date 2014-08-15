@@ -6,7 +6,7 @@
  * @author    Labs64 <info@labs64.com>
  * @license   GPL-2.0+
  * @link      http://www.labs64.com
- * @copyright 2013 Labs64
+ * @copyright 2014 Labs64
  */
 
 class DigiPass
@@ -166,7 +166,7 @@ class DigiPass
      */
     public function load_plugin_textdomain()
     {
-        $domain = CT_SLUG;
+        $domain = DP_SLUG;
         $locale = apply_filters('plugin_locale', get_locale(), $domain);
 
         load_textdomain($domain, trailingslashit(WP_LANG_DIR) . $domain . '/' . $domain . '-' . $locale . '.mo');
@@ -178,7 +178,7 @@ class DigiPass
      */
     public function enqueue_styles()
     {
-        wp_enqueue_style(CT_SLUG . '-plugin-styles', plugins_url('css/dp-public.css', __FILE__), array(), CT_VERSION);
+        wp_enqueue_style(DP_SLUG . '-plugin-styles', plugins_url('css/dp-public.css', __FILE__), array(), DP_VERSION);
     }
 
     /**
@@ -186,7 +186,7 @@ class DigiPass
      */
     public function enqueue_scripts()
     {
-        wp_enqueue_script(CT_SLUG . '-plugin-script', plugins_url('js/dp-public.js', __FILE__), array('jquery'), CT_VERSION);
+        wp_enqueue_script(DP_SLUG . '-plugin-script', plugins_url('js/dp-public.js', __FILE__), array('jquery'), DP_VERSION);
     }
 
     public function get_attachment_fields($form_fields, $post)
@@ -195,10 +195,10 @@ class DigiPass
         $ct_retriever_enabled = get_single_option('ct_feature_retriever');
 
         $form_fields["digipass-ident_nr"] = array(
-            "label" => __('Ident-Nr.', CT_SLUG),
+            "label" => __('Ident-Nr.', DP_SLUG),
             "input" => "text",
             "value" => get_post_meta($post->ID, "digipass-ident_nr", true),
-            "helps" => __("The original object number at the source", CT_SLUG),
+            "helps" => __("The original object number at the source", DP_SLUG),
         );
 
         if ($ct_retriever_enabled == '1') {
@@ -206,43 +206,43 @@ class DigiPass
             $link_activate = "";
         } else {
             $btn_state = 'disabled';
-            $link_activate = "<a href='" . admin_url('options-general.php?page=digipass') . "'>" . __("activate", CT_SLUG) . "</a>";
+            $link_activate = "<a href='" . admin_url('options-general.php?page=digipass') . "'>" . __("activate", DP_SLUG) . "</a>";
         }
 
         $form_fields["digipass-source"] = array(
-            "label" => __('Source', CT_SLUG),
+            "label" => __('Source', DP_SLUG),
             "input" => "html",
             "value" => $selected_source,
-            "html" => "<select name='attachments[$post->ID][digipass-source]' id='attachments-{$post->ID}-digipass-source'>" . get_combobox_options(ct_get_sources_names_array(), $selected_source) . "</select>&nbsp;&nbsp;<button id='mediadata' type='button' " . $btn_state . ">" . __("GET MEDIA DATA", CT_SLUG) . "</button>" . "&nbsp;" . $link_activate,
-            "helps" => __("Source where to locate the original media", CT_SLUG),
+            "html" => "<select name='attachments[$post->ID][digipass-source]' id='attachments-{$post->ID}-digipass-source'>" . get_combobox_options(ct_get_sources_names_array(), $selected_source) . "</select>&nbsp;&nbsp;<button id='mediadata' type='button' " . $btn_state . ">" . __("GET MEDIA DATA", DP_SLUG) . "</button>" . "&nbsp;" . $link_activate,
+            "helps" => __("Source where to locate the original media", DP_SLUG),
         );
 
         $form_fields["digipass-author"] = array(
-            "label" => __('Author', CT_SLUG),
+            "label" => __('Author', DP_SLUG),
             "input" => "text",
             "value" => get_post_meta($post->ID, "digipass-author", true),
-            "helps" => __("Media author/owner", CT_SLUG),
+            "helps" => __("Media author/owner", DP_SLUG),
         );
 
         $form_fields["digipass-publisher"] = array(
-            "label" => __('Publisher', CT_SLUG),
+            "label" => __('Publisher', DP_SLUG),
             "input" => "text",
             "value" => get_post_meta($post->ID, "digipass-publisher", true),
-            "helps" => __("Media publisher (e.g. image agency)", CT_SLUG),
+            "helps" => __("Media publisher (e.g. image agency)", DP_SLUG),
         );
 
         $form_fields["digipass-license"] = array(
-            "label" => __('License', CT_SLUG),
+            "label" => __('License', DP_SLUG),
             "input" => "text",
             "value" => get_post_meta($post->ID, "digipass-license", true),
-            "helps" => __("Media license", CT_SLUG),
+            "helps" => __("Media license", DP_SLUG),
         );
 
         $form_fields["digipass-link"] = array(
-            "label" => __('Link', CT_SLUG),
+            "label" => __('Link', DP_SLUG),
             "input" => "text",
             "value" => get_post_meta($post->ID, "digipass-link", true),
-            "helps" => __("Media link", CT_SLUG),
+            "helps" => __("Media link", DP_SLUG),
         );
 
         return $form_fields;
@@ -291,9 +291,9 @@ class DigiPass
 
     function digipass_attachment_columns($columns)
     {
-        $columns['digipass-ident_nr'] = __('Ident-Nr.', CT_SLUG);
-        $columns['digipass-source'] = __('Source', CT_SLUG);
-        $columns['digipass-author'] = __('Author', CT_SLUG);
+        $columns['digipass-ident_nr'] = __('Ident-Nr.', DP_SLUG);
+        $columns['digipass-source'] = __('Source', DP_SLUG);
+        $columns['digipass-author'] = __('Author', DP_SLUG);
         return $columns;
     }
 

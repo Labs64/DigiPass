@@ -6,11 +6,11 @@
  * @author    Labs64 <info@labs64.com>
  * @license   GPL-2.0+
  * @link      http://www.labs64.com
- * @copyright 2013 Labs64
+ * @copyright 2014 Labs64
  */
 
 
-define('CT_OPTIONS', 'CT_OPTIONS');
+define('DP_OPTIONS', 'DP_OPTIONS');
 define('API_KEY', '31c7bc4e-90ff-44fb-9f07-b88eb06ed9dc');
 
 
@@ -39,7 +39,7 @@ function add_action_links($links)
 {
     return array_merge(
         array(
-            'settings' => '<a href="' . admin_url('options-general.php?page=digipass') . '">' . __('Settings', CT_SLUG) . '</a>'
+            'settings' => '<a href="' . admin_url('options-general.php?page=digipass') . '">' . __('Settings', DP_SLUG) . '</a>'
         ),
         $links
     );
@@ -52,10 +52,10 @@ function add_plugin_page()
 {
     global $plugin_screen_hook_suffix;
     $plugin_screen_hook_suffix = add_options_page(
-        __('DigiPass', CT_SLUG),
-        __('DigiPass', CT_SLUG),
+        __('DigiPass', DP_SLUG),
+        __('DigiPass', DP_SLUG),
         'manage_options',
-        CT_SLUG,
+        DP_SLUG,
         'create_admin_page'
     );
 }
@@ -75,7 +75,7 @@ function enqueue_admin_styles()
 
     $screen = get_current_screen();
     if ($screen->id == $plugin_screen_hook_suffix) {
-        wp_enqueue_style(CT_SLUG . '-admin-styles', plugins_url('css/dp-admin.css', __FILE__), array(), CT_VERSION);
+        wp_enqueue_style(DP_SLUG . '-admin-styles', plugins_url('css/dp-admin.css', __FILE__), array(), DP_VERSION);
     }
 
 }
@@ -95,7 +95,7 @@ function enqueue_admin_scripts()
 
     $screen = get_current_screen();
     if ($screen->id == $plugin_screen_hook_suffix) {
-        wp_enqueue_script(CT_SLUG . '-admin-script', plugins_url('js/dp-admin.js', __FILE__), array('jquery'), CT_VERSION);
+        wp_enqueue_script(DP_SLUG . '-admin-script', plugins_url('js/dp-admin.js', __FILE__), array('jquery'), DP_VERSION);
     }
 
 }
@@ -109,14 +109,14 @@ function create_admin_page()
     <div class="wrap" xmlns="http://www.w3.org/1999/html">
         <a href="http://www.labs64.com" target="_blank" class="icon-labs64 icon32"></a>
 
-        <h2><?php _e('DigiPass by Labs64', CT_SLUG); ?></h2>
+        <h2><?php _e('DigiPass by Labs64', DP_SLUG); ?></h2>
 
         <form method="post" action="options.php">
             <?php
             // This prints out all hidden setting fields
-            settings_fields('CT_OPTIONS_GROUP');
+            settings_fields('DP_OPTIONS_GROUP');
             settings_fields_hidden();
-            do_settings_sections(CT_SLUG);
+            do_settings_sections(DP_SLUG);
             submit_button();
             ?>
         </form>
@@ -169,7 +169,7 @@ function print_common_section_info()
  */
 function print_retriever_section_info()
 {
-    print __('Some Image Data Retriever needs additional configuration', CT_SLUG);
+    print __('Some Image Data Retriever needs additional configuration', DP_SLUG);
 }
 
 /**
@@ -178,7 +178,7 @@ function print_retriever_section_info()
 function ct_get_features_array()
 {
     $features = array(
-        'ct_feature_retriever' => __('Image data retriever (Free)', CT_SLUG)
+        'ct_feature_retriever' => __('Image data retriever (Free)', DP_SLUG)
     );
     return $features;
 }
@@ -204,8 +204,8 @@ function print_features_section()
     $ct_feature_retriever = get_single_option('ct_feature_retriever');
 
     ?>
-    <h3><?php _e('Features', CT_SLUG); ?></h3>
-    <p><?php _e('Available plugin features', CT_SLUG); ?>:</p>
+    <h3><?php _e('Features', DP_SLUG); ?></h3>
+    <p><?php _e('Available plugin features', DP_SLUG); ?>:</p>
 
     <?php print_features_list(ct_get_features_array()); ?>
 
@@ -224,13 +224,13 @@ function print_features_section()
 function print_feedback_section()
 {
     ?>
-    <h3><?php _e('Feedback', CT_SLUG); ?></h3>
+    <h3><?php _e('Feedback', DP_SLUG); ?></h3>
 
-    <p><?php _e('Did you find a bug? Have an idea for a plugin? Please help us improve this plugin', CT_SLUG); ?>:</p>
+    <p><?php _e('Did you find a bug? Have an idea for a plugin? Please help us improve this plugin', DP_SLUG); ?>:</p>
     <ul>
         <li>
             <a href="https://github.com/Labs64/digipass/issues"
-               target="_blank"><?php _e('Report a bug, or suggest an improvement', CT_SLUG); ?></a>
+               target="_blank"><?php _e('Report a bug, or suggest an improvement', DP_SLUG); ?></a>
         </li>
         <li><a href="http://www.facebook.com/labs64" target="_blank"><?php _e('Like us on Facebook'); ?></a>
         </li>
@@ -245,7 +245,7 @@ function print_feedback_section()
 function print_reference_section()
 {
     ?>
-    <h3><?php _e('Shortcodes Reference', CT_SLUG); ?></h3>
+    <h3><?php _e('Shortcodes Reference', DP_SLUG); ?></h3>
     <table class="form-table">
         <tbody>
         <tr valign="top">
@@ -314,59 +314,59 @@ function print_reference_section()
 function page_init()
 {
     register_setting(
-        'CT_OPTIONS_GROUP', // Option group
-        CT_OPTIONS, // Option name
+        'DP_OPTIONS_GROUP', // Option group
+        DP_OPTIONS, // Option name
         'sanitize' // Sanitize
     );
 
     add_settings_section(
-        'CT_COMMON_SETTINGS', // ID
-        __('DigiPass Settings', CT_SLUG), // Title
+        'DP_COMMON_SETTINGS', // ID
+        __('DigiPass Settings', DP_SLUG), // Title
         'print_common_section_info', // Callback
-        CT_SLUG // Page
+        DP_SLUG // Page
     );
 
     add_settings_section(
-        'CT_RETRIEVER_SETTINGS', // ID
-        __('Retriever Settings', CT_SLUG), // Title
+        'DP_RETRIEVER_SETTINGS', // ID
+        __('Retriever Settings', DP_SLUG), // Title
         'print_retriever_section_info', // Callback
-        CT_SLUG // Page
+        DP_SLUG // Page
     );
 
     add_settings_field(
         'ct_copyright_format',
-        __('Copyright format', CT_SLUG),
+        __('Copyright format', DP_SLUG),
         'ct_text_field_callback',
-        CT_SLUG,
-        'CT_COMMON_SETTINGS',
+        DP_SLUG,
+        'DP_COMMON_SETTINGS',
         array(
             'id' => 'ct_copyright_format',
-            'description' => __('Default copyright format (HTML allowed)<br/>Allowed placeholders: %ident_nr%, %source%, %author%, %publisher%, %license%, %link%<br/>...as well as standard attributes: %title%, %caption%', CT_SLUG),
+            'description' => __('Default copyright format (HTML allowed)<br/>Allowed placeholders: %ident_nr%, %source%, %author%, %publisher%, %license%, %link%<br/>...as well as standard attributes: %title%, %caption%', DP_SLUG),
         )
     );
 
     add_settings_field(
         'ct_override_caption_shortcode',
-        __('Override shortcodes', CT_SLUG),
+        __('Override shortcodes', DP_SLUG),
         'ct_checkbox_field_callback',
-        CT_SLUG,
-        'CT_COMMON_SETTINGS',
+        DP_SLUG,
+        'DP_COMMON_SETTINGS',
         array(
             'id' => 'ct_override_caption_shortcode',
-            'caption' => __('Override WordPress [caption] shortcode', CT_SLUG),
-            'description' => __('Replaces output of standard WordPress [caption] shortcode with improved version (add Image Microdata and Image Credit)', CT_SLUG),
+            'caption' => __('Override WordPress [caption] shortcode', DP_SLUG),
+            'description' => __('Replaces output of standard WordPress [caption] shortcode with improved version (add Image Microdata and Image Credit)', DP_SLUG),
         )
     );
 
     add_settings_field(
         'ct_auth_flickr_apikey',
-        __('Flickr api_key', CT_SLUG),
+        __('Flickr api_key', DP_SLUG),
         'ct_text_field_callback',
-        CT_SLUG,
-        'CT_RETRIEVER_SETTINGS',
+        DP_SLUG,
+        'DP_RETRIEVER_SETTINGS',
         array(
             'id' => 'ct_auth_flickr_apikey',
-            'description' => __('To use the Flickr data retriever you need to have an Flickr API application key.' . ' <a href="https://www.flickr.com/services/api/misc.api_keys.html" target="_blank">See here</a>' . ' for more details.', CT_SLUG),
+            'description' => __('To use the Flickr data retriever you need to have an Flickr API application key.' . ' <a href="https://www.flickr.com/services/api/misc.api_keys.html" target="_blank">See here</a>' . ' for more details.', DP_SLUG),
         )
     );
 }
@@ -380,7 +380,7 @@ function sanitize($input)
 {
     if (empty($input['ct_copyright_format'])) {
         if (is_admin()) {
-            add_settings_error(CT_OPTIONS, 'empty-copyright-format', 'Please specify copyright format.');
+            add_settings_error(DP_OPTIONS, 'empty-copyright-format', 'Please specify copyright format.');
         }
     } else {
         $input['ct_copyright_format'] = $input['ct_copyright_format'];
@@ -403,7 +403,7 @@ function settings_fields_hidden()
 function print_settings_field_hidden($id)
 {
     $value = get_single_option($id);
-    echo "<input type='hidden' id='$id' name='CT_OPTIONS[$id]' value='$value' />";
+    echo "<input type='hidden' id='$id' name='DP_OPTIONS[$id]' value='$value' />";
 }
 
 /**
@@ -413,7 +413,7 @@ function ct_text_field_callback($args)
     $id = $args['id'];
     $description = $args['description'];
     $value = get_single_option($id);
-    echo "<input type='text' id='$id' name='CT_OPTIONS[$id]' value='$value' class='regular-text' />";
+    echo "<input type='text' id='$id' name='DP_OPTIONS[$id]' value='$value' class='regular-text' />";
     echo "<p class='description'>$description</p>";
 }
 
@@ -423,7 +423,7 @@ function ct_checkbox_field_callback($args)
     $caption = $args['caption'];
     $description = $args['description'];
     $value = get_single_option($id);
-    echo "<input type='checkbox' id='$id' name='CT_OPTIONS[$id]' value='1' class='code' " . checked(1, $value, false) . " /> $caption";
+    echo "<input type='checkbox' id='$id' name='DP_OPTIONS[$id]' value='1' class='code' " . checked(1, $value, false) . " /> $caption";
     echo "<p class='description'>$description</p>";
 }
 
@@ -448,12 +448,12 @@ function get_default_options()
 function get_options()
 {
     $options = get_default_options();
-    $stored_options = get_option(CT_OPTIONS);
+    $stored_options = get_option(DP_OPTIONS);
     if (!empty($stored_options)) {
         sanitize($stored_options);
         $options = wp_parse_args($stored_options, $options);
     }
-    update_option(CT_OPTIONS, $options);
+    update_option(DP_OPTIONS, $options);
     return $options;
 }
 
@@ -473,7 +473,7 @@ function set_single_option($name, $value)
 {
     $options = get_options();
     $options[$name] = $value;
-    update_option(CT_OPTIONS, $options);
+    update_option(DP_OPTIONS, $options);
 }
 
 /**
@@ -577,7 +577,7 @@ function ct_get_sources_array()
 {
     $sources = array(
         'custom' => array(
-            'caption' => __('Custom', CT_SLUG),
+            'caption' => __('Custom', DP_SLUG),
             'copyright' => '',
             'retriever' => ''
         ),
