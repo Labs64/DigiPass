@@ -140,7 +140,7 @@ class DigiPass
      */
     private static function single_activate()
     {
-        // TODO: Define activation functionality here
+        // Activation functionality
     }
 
     /**
@@ -148,7 +148,7 @@ class DigiPass
      */
     private static function single_deactivate()
     {
-        // TODO: Define deactivation functionality here
+        // Deactivation functionality
     }
 
     /**

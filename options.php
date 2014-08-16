@@ -11,7 +11,7 @@
 
 
 define('DP_OPTIONS', 'DP_OPTIONS');
-define('API_KEY', '31c7bc4e-90ff-44fb-9f07-b88eb06ed9dc');
+define('DP_API_KEY', '31c7bc4e-90ff-44fb-9f07-b88eb06ed9dc');
 
 
 if (is_admin()) {
@@ -186,7 +186,7 @@ function dp_page_init()
     register_setting(
         'DP_OPTIONS_GROUP', // Option group
         DP_OPTIONS, // Option name
-        'dp_sanitize' // dp_sanitize
+        'dp_sanitize' // Sanitize
     );
 
     add_settings_section(
@@ -216,7 +216,7 @@ function dp_page_init()
  */
 function dp_sanitize($input)
 {
-    $input['dp_netlicensing_apikey'] = dp_sanitize_text_field($input['dp_netlicensing_apikey']);
+    $input['dp_netlicensing_apikey'] = sanitize_text_field($input['dp_netlicensing_apikey']);
 
     return $input;
 }
