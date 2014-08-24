@@ -131,25 +131,25 @@ class DigiPass_Admin
         <div class="wrap" xmlns="http://www.w3.org/1999/html">
             <a href="http://www.labs64.com" target="_blank" class="icon-labs64 icon32"></a>
 
-            <h2><?php _e('DigiPass by Labs64', DP_SLUG); ?></h2>
+            <h2><?php _e('DigiPass by Labs64', $this->plugin_slug); ?></h2>
 
-            <form method="post" action="digipass-options.php">
+            <form method="post" action="digipass-class-admin.php">
                 <?php
                 // This prints out all hidden setting fields
                 settings_fields('DP_OPTIONS_GROUP');
-                dp_settings_fields_hidden();
-                do_settings_sections(DP_SLUG);
+                $this->dp_settings_fields_hidden();
+                do_settings_sections($this->plugin_slug);
                 submit_button();
                 ?>
             </form>
             <hr/>
             <?php
-            dp_print_reference_section();
+            $this->dp_print_reference_section();
             ?>
         </div>
         <div class="info_menu">
             <?php
-            dp_print_feedback_section();
+            $this->dp_print_feedback_section();
             ?>
         </div>
     <?php
@@ -158,7 +158,7 @@ class DigiPass_Admin
     /**
      * Print sections divider
      */
-    function dp_print_divider()
+    public function dp_print_divider()
     {
         ?>
         <hr/>
@@ -168,24 +168,24 @@ class DigiPass_Admin
     /**
      * Print the Common-Section info text
      */
-    function dp_print_common_section_info()
+    public function dp_print_common_section_info()
     {
     }
 
     /**
      * Print the feedback section
      */
-    function dp_print_feedback_section()
+    public function dp_print_feedback_section()
     {
         ?>
-        <h3><?php _e('Feedback', DP_SLUG); ?></h3>
+        <h3><?php _e('Feedback', $this->plugin_slug); ?></h3>
 
-        <p><?php _e('Did you find a bug? Have an idea for a plugin? Please help us improve this plugin', DP_SLUG); ?>
+        <p><?php _e('Did you find a bug? Have an idea for a plugin? Please help us improve this plugin', $this->plugin_slug); ?>
             :</p>
         <ul>
             <li>
                 <a href="https://github.com/Labs64/DigiPass/issues"
-                   target="_blank"><?php _e('Report a bug, or suggest an improvement', DP_SLUG); ?></a>
+                   target="_blank"><?php _e('Report a bug, or suggest an improvement', $this->plugin_slug); ?></a>
             </li>
             <li><a href="http://www.facebook.com/labs64" target="_blank"><?php _e('Like us on Facebook'); ?></a>
             </li>
@@ -197,7 +197,7 @@ class DigiPass_Admin
     /**
      * Print the reference section
      */
-    function dp_print_reference_section()
+    public function dp_print_reference_section()
     {
     }
 
@@ -219,41 +219,40 @@ class DigiPass_Admin
     /**
      * Register and add settings
      */
-    function admin_page_init()
+    public function admin_page_init()
     {
         register_setting(
-            'DP_OPTIONS_GROUP', // Option group
-            DP_OPTIONS, // Option name
-            'dp_sanitize_fields' // Sanitize
+            'DP_OPTIONS_GROUP',
+            DP_OPTIONS,
+            array($this, 'dp_sanitize_fields')
         );
 
         add_settings_section(
-            'DP_COMMON_SETTINGS', // ID
-            __('DigiPass Settings', DP_SLUG), // Title
-            'dp_print_common_section_info', // Callback
-            DP_SLUG // Page
+            'DP_COMMON_SETTINGS',
+            __('DigiPass Settings', $this->plugin_slug),
+            array($this, 'dp_print_common_section_info'),
+            $this->plugin_slug
         );
 
         add_settings_field(
             'dp_netlicensing_apikey',
-            __('NetLicensing APIKey', DP_SLUG),
-            'dp_text_field_callback',
-            DP_SLUG,
+            __('NetLicensing APIKey', $this->plugin_slug),
+            array($this, 'dp_text_field_callback'),
+            $this->plugin_slug,
             'DP_COMMON_SETTINGS',
             array(
                 'id' => 'dp_netlicensing_apikey',
-                'description' => __('To use the NetLicensing you need to have an APIKey.' . ' <a href="http://www.labs64.com/netlicensing" target="_blank">See here</a>' . ' for more details.', DP_SLUG),
+                'description' => __('To use the NetLicensing you need to have an APIKey.' . ' <a href="http://www.labs64.com/netlicensing" target="_blank">See here</a>' . ' for more details.', $this->plugin_slug),
             )
         );
     }
 
-
     /**
-     * dp_sanitize_fields each setting field as needed
+     * Sanitize each setting field as needed
      *
      * @param array $input Contains all settings fields as array keys
      */
-    function dp_sanitize_fields($input)
+    public function dp_sanitize_fields($input)
     {
         $input['dp_netlicensing_apikey'] = sanitize_text_field($input['dp_netlicensing_apikey']);
 
@@ -262,36 +261,38 @@ class DigiPass_Admin
 
     /**
      */
-    function dp_settings_fields_hidden()
+    public function dp_settings_fields_hidden()
     {
-        dp_print_settings_field_hidden('dp_option2');
+        $this->dp_print_settings_field_hidden('dp_option2');
     }
 
     /**
      */
-    function dp_print_settings_field_hidden($id)
+    public function dp_print_settings_field_hidden($id)
     {
-        $value = dp_get_single_option($id);
+        $value = $this->dp_get_single_option($id);
         echo "<input type='hidden' id='$id' name='DP_OPTIONS[$id]' value='$value' />";
     }
 
     /**
      */
-    function dp_text_field_callback($args)
+    public function dp_text_field_callback($args)
     {
         $id = $args['id'];
         $description = $args['description'];
-        $value = dp_get_single_option($id);
+        $value = $this->dp_get_single_option($id);
         echo "<input type='text' id='$id' name='DP_OPTIONS[$id]' value='$value' class='regular-text' />";
         echo "<p class='description'>$description</p>";
     }
 
-    function dp_checkbox_field_callback($args)
+    /**
+     */
+    public function dp_checkbox_field_callback($args)
     {
         $id = $args['id'];
         $caption = $args['caption'];
         $description = $args['description'];
-        $value = dp_get_single_option($id);
+        $value = $this->dp_get_single_option($id);
         echo "<input type='checkbox' id='$id' name='DP_OPTIONS[$id]' value='1' class='code' " . checked(1, $value, false) . " /> $caption";
         echo "<p class='description'>$description</p>";
     }
@@ -300,7 +301,7 @@ class DigiPass_Admin
      * Returns default options.
      * If you override the options here, be careful to use escape characters!
      */
-    function dp_get_default_options()
+    public function dp_get_default_options()
     {
         $default_options = array(
             'dp_netlicensing_apikey' => '',
@@ -312,12 +313,12 @@ class DigiPass_Admin
     /**
      * Retrieves (and sanitises) options
      */
-    function dp_get_options()
+    public function dp_get_options()
     {
-        $options = dp_get_default_options();
+        $options = $this->dp_get_default_options();
         $stored_options = get_option(DP_OPTIONS);
         if (!empty($stored_options)) {
-            dp_sanitize_fields($stored_options);
+            $this->dp_sanitize_fields($stored_options);
             $options = wp_parse_args($stored_options, $options);
         }
         update_option(DP_OPTIONS, $options);
@@ -327,18 +328,18 @@ class DigiPass_Admin
     /**
      * Retrieves single option
      */
-    function dp_get_single_option($name)
+    public function dp_get_single_option($name)
     {
-        $options = dp_get_options();
+        $options = $this->dp_get_options();
         return $options[$name];
     }
 
     /**
      * Set single option value
      */
-    function dp_set_single_option($name, $value)
+    public function dp_set_single_option($name, $value)
     {
-        $options = dp_get_options();
+        $options = $this->dp_get_options();
         $options[$name] = $value;
         update_option(DP_OPTIONS, $options);
     }
