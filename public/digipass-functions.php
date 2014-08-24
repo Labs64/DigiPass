@@ -13,7 +13,7 @@
  * @param string $url
  * @return string
  */
-function dp_strip_url($url, $len = 20)
+function dp_strip_url($url, $len = 255)
 {
     $short_url = str_replace(array('http://', 'https://', 'www.'), '', $url);
     $short_url = preg_replace('/[^a-zA-Z0-9_-]/', '', $short_url);

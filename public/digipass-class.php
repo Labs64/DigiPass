@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin class.
+ * DigiPass .
  *
  * @package   DigiPass
  * @author    Labs64 <info@labs64.com>
@@ -13,9 +13,22 @@ class DigiPass
 {
 
     /**
-     * Instance of this class.
+     * Plugin version, used for cache-busting of style and script file references.
+     */
+    const VERSION = '0.9.0';
+
+    /**
+     * Unique identifier for your plugin.
      *
-     * @var      object
+     *
+     * The variable name is used as the text domain when internationalizing strings
+     * of text. Its value should match the Text Domain file header in the main
+     * plugin file.
+     */
+    protected $plugin_slug = 'digipass';
+
+    /**
+     * Instance of this class.
      */
     protected static $instance = null;
 
@@ -36,12 +49,23 @@ class DigiPass
     }
 
     /**
+     * Return the plugin slug.
+     *
+     * @return    Plugin slug variable.
+     */
+    public function get_plugin_slug()
+    {
+        return $this->plugin_slug;
+    }
+
+    /**
      * Return an instance of this class.
      *
      * @return    object    A single instance of this class.
      */
     public static function get_instance()
     {
+
         // If the single instance hasn't been set, set it now.
         if (null == self::$instance) {
             self::$instance = new self;
@@ -50,55 +74,80 @@ class DigiPass
         return self::$instance;
     }
 
+
     /**
      * Fired when the plugin is activated.
      *
-     * @param    boolean $network_wide    True if WPMU superadmin uses "Network Activate" action, false if WPMU is disabled or plugin is activated on an individual blog.
+     * @param    boolean $network_wide    True if WPMU superadmin uses
+     *                                       "Network Activate" action, false if
+     *                                       WPMU is disabled or plugin is
+     *                                       activated on an individual blog.
      */
     public static function activate($network_wide)
     {
+
         if (function_exists('is_multisite') && is_multisite()) {
+
             if ($network_wide) {
+
                 // Get all blog ids
                 $blog_ids = self::get_blog_ids();
 
                 foreach ($blog_ids as $blog_id) {
+
                     switch_to_blog($blog_id);
                     self::single_activate();
+
+                    restore_current_blog();
                 }
-                restore_current_blog();
+
             } else {
                 self::single_activate();
             }
+
         } else {
             self::single_activate();
         }
+
     }
 
     /**
      * Fired when the plugin is deactivated.
      *
-     * @param    boolean $network_wide    True if WPMU superadmin uses "Network Deactivate" action, false if WPMU is disabled or plugin is deactivated on an individual blog.
+     * @param    boolean $network_wide    True if WPMU superadmin uses
+     *                                       "Network Deactivate" action, false if
+     *                                       WPMU is disabled or plugin is
+     *                                       deactivated on an individual blog.
      */
     public static function deactivate($network_wide)
     {
+
         if (function_exists('is_multisite') && is_multisite()) {
+
             if ($network_wide) {
+
                 // Get all blog ids
                 $blog_ids = self::get_blog_ids();
 
                 foreach ($blog_ids as $blog_id) {
+
                     switch_to_blog($blog_id);
                     self::single_deactivate();
+
+                    restore_current_blog();
+
                 }
-                restore_current_blog();
+
             } else {
                 self::single_deactivate();
             }
+
         } else {
             self::single_deactivate();
         }
+
     }
+
 
     /**
      * Fired when a new site is activated with a WPMU environment.
@@ -107,6 +156,7 @@ class DigiPass
      */
     public function activate_new_site($blog_id)
     {
+
         if (1 !== did_action('wpmu_new_blog')) {
             return;
         }
@@ -114,6 +164,7 @@ class DigiPass
         switch_to_blog($blog_id);
         self::single_activate();
         restore_current_blog();
+
     }
 
     /**
@@ -126,13 +177,16 @@ class DigiPass
      */
     private static function get_blog_ids()
     {
+
         global $wpdb;
 
         // get an array of blog ids
         $sql = "SELECT blog_id FROM $wpdb->blogs
 			WHERE archived = '0' AND spam = '0'
 			AND deleted = '0'";
+
         return $wpdb->get_col($sql);
+
     }
 
     /**
@@ -156,11 +210,13 @@ class DigiPass
      */
     public function load_plugin_textdomain()
     {
-        $domain = DP_SLUG;
+
+        $domain = $this->plugin_slug;
         $locale = apply_filters('plugin_locale', get_locale(), $domain);
 
         load_textdomain($domain, trailingslashit(WP_LANG_DIR) . $domain . '/' . $domain . '-' . $locale . '.mo');
-        load_plugin_textdomain($domain, FALSE, basename(dirname(__FILE__)) . '/languages');
+        load_plugin_textdomain($domain, FALSE, basename(plugin_dir_path(dirname(__FILE__))) . '/languages/');
+
     }
 
     /**
@@ -168,7 +224,7 @@ class DigiPass
      */
     public function enqueue_styles()
     {
-        wp_enqueue_style(DP_SLUG . '-plugin-styles', plugins_url('css/dp-public.css', __FILE__), array(), DP_VERSION);
+        wp_enqueue_style($this->plugin_slug . '-plugin-styles', plugins_url('assets/css/dp-public.css', __FILE__), array(), self::VERSION);
     }
 
     /**
@@ -176,7 +232,7 @@ class DigiPass
      */
     public function enqueue_scripts()
     {
-        wp_enqueue_script(DP_SLUG . '-plugin-script', plugins_url('js/dp-public.js', __FILE__), array('jquery'), DP_VERSION);
+        wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/dp-public.js', __FILE__), array('jquery'), self::VERSION);
     }
 
 }
