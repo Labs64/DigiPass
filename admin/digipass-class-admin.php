@@ -50,7 +50,7 @@ class DigiPass_Admin
         add_filter('plugin_action_links_' . $plugin_basename, array($this, 'add_action_links'));
 
         // Add the options page and menu item.
-        add_action('admin_init', 'admin_page_init');
+        add_action('admin_init', array($this, 'admin_page_init'));
     }
 
     /**
@@ -133,7 +133,7 @@ class DigiPass_Admin
 
             <h2><?php _e('DigiPass by Labs64', $this->plugin_slug); ?></h2>
 
-            <form method="post" action="digipass-class-admin.php">
+            <form method="post" action="#">
                 <?php
                 // This prints out all hidden setting fields
                 settings_fields('DP_OPTIONS_GROUP');
@@ -242,7 +242,7 @@ class DigiPass_Admin
             'DP_COMMON_SETTINGS',
             array(
                 'id' => 'dp_netlicensing_apikey',
-                'description' => __('To use the NetLicensing you need to have an APIKey.' . ' <a href="http://www.labs64.com/netlicensing" target="_blank">See here</a>' . ' for more details.', $this->plugin_slug),
+                'description' => __('To use the NetLicensing you need to have an APIKey. ' . 'See <a href="https://www.labs64.de/confluence/x/pwCo#NetLicensingAPI(RESTful)-APIKeyIdentification" target="_blank">here</a>' . ' for more details.', $this->plugin_slug),
             )
         );
     }
