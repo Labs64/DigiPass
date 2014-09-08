@@ -133,7 +133,7 @@ class DigiPass_Admin
 
             <h2><?php _e('DigiPass by Labs64', $this->plugin_slug); ?></h2>
 
-            <form method="post" action="#">
+            <form method="post" action="options.php">
                 <?php
                 // This prints out all hidden setting fields
                 settings_fields('DP_OPTIONS_GROUP');
