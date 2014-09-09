@@ -254,7 +254,9 @@ class DigiPass_Admin
      */
     public function dp_sanitize_fields($input)
     {
-        $input['dp_netlicensing_apikey'] = sanitize_text_field($input['dp_netlicensing_apikey']);
+        if (isset($input['dp_netlicensing_apikey'])) {
+            $input['dp_netlicensing_apikey'] = sanitize_text_field($input['dp_netlicensing_apikey']);
+        }
 
         return $input;
     }
