@@ -15,7 +15,7 @@ class DigiPass
     /**
      * Plugin version, used for cache-busting of style and script file references.
      */
-    const VERSION = '0.9.0';
+    const VERSION = '0.1.0';
 
     /**
      * Unique identifier for your plugin.

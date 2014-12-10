@@ -3,7 +3,7 @@ Contributors: labs64, shafranov
 Tags: paywall, digital, pass, access-control, content, micropayment, monetize, pay-per-view, payment, PayPal, paywall, premium, content, digital goods, social, subscribe, subscription, license, subscription, ABO, NetLicensing
 Requires at least: 3.5.1
 Tested up to: 4.0
-Stable tag: 0.9.0
+Stable tag: 0.1.0
 License: GPL-2.0+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,7 +97,7 @@ Yes you can! Join in on our [GitHub repository](https://github.com/Labs64/DigiPa
 
 == Changelog ==
 
-= 0.9.0 =
+= 0.1.0 =
 * Initial version
 
 == Other Notes ==
