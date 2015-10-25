@@ -194,7 +194,7 @@ class DigiPass
      */
     private static function single_activate()
     {
-        // Activation functionality
+
     }
 
     /**
@@ -234,5 +234,4 @@ class DigiPass
     {
         wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/dp-public.js', __FILE__), array('jquery'), self::VERSION);
     }
-
 }

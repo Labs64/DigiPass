@@ -51,6 +51,10 @@ class DigiPass_Admin
 
         // Add the options page and menu item.
         add_action('admin_init', array($this, 'admin_page_init'));
+
+
+        //Add meta boxes to pages and posts content types
+        add_action('add_meta_boxes', array($this, 'product_module_connector_meta_box_add'));
     }
 
     /**
@@ -242,7 +246,34 @@ class DigiPass_Admin
             'DP_COMMON_SETTINGS',
             array(
                 'id' => 'dp_netlicensing_apikey',
-                'description' => __('To use the NetLicensing you need to have an APIKey. ' . 'See <a href="https://www.labs64.de/confluence/x/pwCo#NetLicensingAPI(RESTful)-APIKeyIdentification" target="_blank">here</a>' . ' for more details.', $this->plugin_slug),
+                'description' => __('To use the NetLicensing you need to have an APIKey. See <a href="https://www.labs64.de/confluence/x/pwCo#NetLicensingAPI(RESTful)-APIKeyIdentification" target="_blank">here</a> for more details.', $this->plugin_slug),
+                'required' => TRUE
+            )
+        );
+
+        add_settings_field(
+            'dp_netlicensing_username',
+            __('NetLicensing Username', $this->plugin_slug),
+            array($this, 'dp_text_field_callback'),
+            $this->plugin_slug,
+            'DP_COMMON_SETTINGS',
+            array(
+                'id' => 'dp_netlicensing_username',
+                'description' => __('Enter your NetLicensing username.', $this->plugin_slug),
+                'required' => TRUE
+            )
+        );
+
+        add_settings_field(
+            'dp_netlicensing_password',
+            __('NetLicensing Password', $this->plugin_slug),
+            array($this, 'dp_password_field_callback'),
+            $this->plugin_slug,
+            'DP_COMMON_SETTINGS',
+            array(
+                'id' => 'dp_netlicensing_password',
+                'description' => __('Enter your NetLicensing password.', $this->plugin_slug),
+                'required' => TRUE
             )
         );
     }
@@ -283,8 +314,9 @@ class DigiPass_Admin
         $id = $args['id'];
         $description = $args['description'];
         $value = $this->dp_get_single_option($id);
-        echo "<input type='text' id='$id' name='DP_OPTIONS[$id]' value='$value' class='regular-text' />";
-        echo "<p class='description'>$description</p>";
+        $required = !empty($args['required']) ? 'required="true"' : '';
+        echo '<input ' . $required . ' type="text" id="' . $id . '"' . ' name="DP_OPTIONS[' . $id . ']" value="' . $value . '" class="regular-text" />';
+        echo '<p class="description">' . $description . '</p>';
     }
 
     /**
@@ -295,8 +327,21 @@ class DigiPass_Admin
         $caption = $args['caption'];
         $description = $args['description'];
         $value = $this->dp_get_single_option($id);
-        echo "<input type='checkbox' id='$id' name='DP_OPTIONS[$id]' value='1' class='code' " . checked(1, $value, false) . " /> $caption";
-        echo "<p class='description'>$description</p>";
+        $required = !empty($args['required']) ? 'required="true"' : '';
+        echo '<input ' . $required . ' type="checkbox" id="' . $id . '" name="DP_OPTIONS[' . $id . ']" value="1" class="code"' . checked(1, $value, false) . '/> ' . $caption;
+        echo '<p class="description">' . $description . '</p>';
+    }
+
+    /**
+     */
+    public function dp_password_field_callback($args)
+    {
+        $id = $args['id'];
+        $description = $args['description'];
+        $value = $this->dp_get_single_option($id);
+        $required = !empty($args['required']) ? 'required="true"' : '';
+        echo '<input ' . $required . ' type="password" id="' . $id . '"' . ' name="DP_OPTIONS[' . $id . ']" value="' . $value . '" class="regular-text" />';
+        echo '<p class="description">' . $description . '</p>';
     }
 
     /**
@@ -307,7 +352,9 @@ class DigiPass_Admin
     {
         $default_options = array(
             'dp_netlicensing_apikey' => '',
-            'dp_option2' => '0'
+            'dp_option2' => '0',
+            'dp_netlicensing_username' => '',
+            'dp_netlicensing_password' => '',
         );
         return $default_options;
     }
@@ -344,6 +391,49 @@ class DigiPass_Admin
         $options = $this->dp_get_options();
         $options[$name] = $value;
         update_option(DP_OPTIONS, $options);
+    }
+
+    /**
+     * Add meta box with product module list
+     */
+    public function product_module_connector_meta_box_add()
+    {
+        add_meta_box('dp-product-module-meta-box', __('DigiPass', $this->plugin_slug), array($this, 'product_module_connector_meta_box'), 'post', 'side', 'low');
+        add_meta_box('dp-product-module-meta-box', __('DigiPass', $this->plugin_slug), array($this, 'product_module_connector_meta_box'), 'page', 'side', 'low');
+    }
+
+    /**
+     * Meta box content with products list
+     */
+    public function product_module_connector_meta_box($page)
+    {
+        print_r($page);
+        $username = $this->dp_get_single_option('dp_netlicensing_username');
+        $password = $this->dp_get_single_option('dp_netlicensing_password');
+
+        if (empty($username) || empty($password)) {
+            echo __('Set the user name and password on the <a href="/wp-admin/options-general.php?page=digipass">settings page</a>', $this->plugin_slug);
+            return FALSE;
+        }
+
+        //TODO need method Ping
+        $product_modules = \NetLicensing\ProductModuleService::connect($username, $password)->getList();
+
+        if (empty($product_modules)) {
+            echo __('Create at least one product on the <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml">Product Modules</a> page', $this->plugin_slug);
+            return FALSE;
+        }
+
+        $options = '<option>' . __('None') . '</option>';
+        /** @var  $product_module \NetLicensing\ProductModule */
+        foreach ($product_modules as $product_module) {
+            $options .= '<option value="' . $product_module->getNumber() . '">' . $product_module->getNumber() . '</option>';
+        }
+
+        echo '<p>' . __('Product Modules') . '</p>
+        <p><select name="dp_product_module">' . $options . '</select></p>';
+
+
     }
 
 }

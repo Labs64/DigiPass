@@ -26,15 +26,14 @@ if (!defined('WPINC')) {
     die;
 }
 
+define('DIGIPASS_DIR',plugin_dir_path(__FILE__));
+
 // main
-require_once(plugin_dir_path(__FILE__) . 'public/digipass-class.php');
-require_once(plugin_dir_path(__FILE__) . 'public/digipass-functions.php');
+require_once(DIGIPASS_DIR . 'public/digipass-class.php');
+require_once(DIGIPASS_DIR . 'public/digipass-functions.php');
 
 // utils
-require_once(plugin_dir_path(__FILE__) . 'includes/netlicensing/netlicensing.php');
-require_once(plugin_dir_path(__FILE__) . 'includes/curl/curl.php');
-require_once(plugin_dir_path(__FILE__) . 'includes/curl/curl_response.php');
-
+require_once(DIGIPASS_DIR . 'includes/netlicensing/netlicensing-load.php');
 
 // Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
 register_activation_hook(__FILE__, array('DigiPass', 'activate'));
