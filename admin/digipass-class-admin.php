@@ -407,7 +407,7 @@ class DigiPass_Admin
      */
     public function product_module_connector_meta_box($page)
     {
-        print_r($page);
+
         $username = $this->dp_get_single_option('dp_netlicensing_username');
         $password = $this->dp_get_single_option('dp_netlicensing_password');
 
@@ -416,7 +416,20 @@ class DigiPass_Admin
             return FALSE;
         }
 
-        //TODO need method Ping
+        //check authorization
+        $nl_api = new \NetLicensing\NetLicensingAPI();
+        $nl_api->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
+        $nl_api->setUserName($username);
+        $nl_api->setPassword($password);
+        $nl_api->successRequestRequired(FALSE);
+
+        $response = $nl_api->get('//core/v2/rest');
+
+        if($response->headers['Status-Code'] == '401'){
+            echo __('Authorization error, check user name and password on the <a href="/wp-admin/options-general.php?page=digipass">settings page</a>', $this->plugin_slug);
+            return FALSE;
+        }
+
         $product_modules = \NetLicensing\ProductModuleService::connect($username, $password)->getList();
 
         if (empty($product_modules)) {
@@ -432,8 +445,6 @@ class DigiPass_Admin
 
         echo '<p>' . __('Product Modules') . '</p>
         <p><select name="dp_product_module">' . $options . '</select></p>';
-
-
     }
 
 }

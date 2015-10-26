@@ -12,19 +12,21 @@ use Curl;
 
 class ProductModuleService extends BaseService
 {
-    /** @var $_curl Curl */
-    protected $_curl = null;
+
+    const URL_PREFIX = '/core/v2/rest';
+
+    /**
+     * @var NetLicensingAPI
+     */
+    protected $nl_connect;
 
     public function __construct($username, $password)
     {
-        parent::__construct();
-
-        $this->_setSecurityCode(self::BASIC_AUTHENTICATION);
-
-        $this->_setUserName($username);
-        $this->_setPassword($password);
-
-        $this->_setHeaderRequest('application/xml');
+        $this->nl_connect = new NetLicensingAPI();
+        $this->nl_connect->setSecurityCode(NetLicensingAPI::BASIC_AUTHENTICATION);
+        $this->nl_connect->setUserName($username);
+        $this->nl_connect->setPassword($password);
+        $this->nl_connect->setResponseFormat('xml');
     }
 
 
@@ -33,117 +35,100 @@ class ProductModuleService extends BaseService
         return new ProductModuleService($username, $password);
     }
 
-    public function get($product_module_number)
+    public function get($number)
     {
-        $response = $this->_request('/productmodule/' . $product_module_number);
-        $response_array = $this->_getResponseArrayByXml($response->body);
+        $response = $this->nl_connect->get(self::URL_PREFIX . '/productmodule/' . $number);
 
-        if ($response_array) {
-            $properties = reset($response_array);
-            if ($properties) {
-                $product_module = new ProductModule($properties);
-                $product_module->_update();
+        $properties_array = $this->_getPropertiesByXmlResponse($response->body);
 
-                return $product_module;
-            }
-        }
+        if (empty($properties_array)) return FALSE;
 
-        return FALSE;
+        $properties = reset($properties_array);
+        $product_module = new ProductModule($properties);
+        $product_module->_update();
+
+        return $product_module;
     }
 
     public function create(ProductModule $product_module)
     {
-        if ($product_module->isValid(TRUE)) {
-
-            if (!$product_module->isNew()) {
-                throw new NetLicensingException('The ProductModule cannot be created because it is already exist.');
-            }
-
-            $response = $this->_request('/productmodule', $product_module->getProperties(), 'POST');
-            $response_array = $this->_getResponseArrayByXml($response->body);
-
-            if ($response_array) {
-                $properties = reset($response_array);
-                if ($properties) {
-                    $product_module->setProperties($properties);
-                    $product_module->_update();
-                    return $product_module;
-                }
-            }
+        if (!$product_module->isValid()) {
+            throw new NetLicensingException('Missing the required properties:' . implode(',', array_keys($product_module->getRequiredPropertiesList())));
         }
 
-        return FALSE;
+        if (!$product_module->isNew()) {
+            throw new NetLicensingException('The ProductModule cannot be created because it is already exist.');
+        }
+
+        $response = $this->nl_connect->post(self::URL_PREFIX . '/productmodule/', $product_module->getProperties());
+        $properties_array = $this->_getPropertiesByXmlResponse($response->body);
+
+        if (empty($properties_array)) return FALSE;
+
+        $properties = reset($properties_array);
+        $product_module->setProperties($properties);
+        $product_module->_update();
+
+        return $product_module;
     }
 
     public function update(ProductModule $product_module)
     {
-        if ($product_module->isValid(TRUE)) {
-
-            if ($product_module->isNew()) {
-                throw new NetLicensingException('The ProductModule cannot be updated because it is new.');
-            }
-
-            if (!$product_module->getOldProperty('number')) {
-                throw new NetLicensingException('The ProductModule cannot be updated because property "number" is missing.');
-            }
-
-            $pm_properties = $product_module->getProperties();
-            $pm_old_properties = $product_module->getOldProperties();
-
-            ksort($pm_properties);
-            ksort($pm_old_properties);
-
-            if (hash('sha256', serialize($pm_properties)) == hash('sha256', serialize($pm_old_properties))) {
-                return $product_module;
-            }
-
-            $response = $this->_request('/productmodule/' . $product_module->getOldProperty('number'), $product_module->getProperties(), 'POST');
-
-            $response_array = $this->_getResponseArrayByXml($response->body);
-
-            if ($response_array) {
-                $properties = reset($response_array);
-                if ($properties) {
-                    $product_module->setProperties($properties);
-                    $product_module->_update();
-                    return $product_module;
-                }
-            }
+        if (!$product_module->isValid()) {
+            throw new NetLicensingException('Missing the required properties:' . implode(',', array_keys($product_module->getRequiredPropertiesList())));
         }
 
-        return FALSE;
+        if ($product_module->isNew()) {
+            throw new NetLicensingException('The ProductModule cannot be updated because it is new.');
+        }
+
+        if (!$product_module->getOldProperty('number')) {
+            throw new NetLicensingException('The ProductModule cannot be updated because property "number" is missing or ProductModule is new.');
+        }
+
+        $pm_properties = $product_module->getProperties();
+        $pm_old_properties = $product_module->getOldProperties();
+
+        ksort($pm_properties);
+        ksort($pm_old_properties);
+
+        if (hash('sha256', serialize($pm_properties)) == hash('sha256', serialize($pm_old_properties))) {
+            return $product_module;
+        }
+
+        $response = $this->nl_connect->post(self::URL_PREFIX . '/productmodule/' . $product_module->getOldProperty('number'), $product_module->getProperties());
+        $properties_array = $this->_getPropertiesByXmlResponse($response->body);
+
+        if (empty($properties_array)) return FALSE;
+
+        $properties = reset($properties_array);
+        $product_module->setProperties($properties);
+        $product_module->_update();
+
+        return $product_module;
     }
 
-    public function delete($product_module_number)
+    public function delete($number)
     {
-        return ($this->_request('/productmodule/' . $product_module_number, array(), 'DELETE'));
+        $response = $this->nl_connect->delete(self::URL_PREFIX . '/productmodule/' . $number);
+        return ($response);
     }
 
     public function getList()
     {
-        $product_modules_list = array();
+        $list = array();
 
-        $response = $this->_request('/productmodule');
-        $response_array = $this->_getResponseArrayByXml($response->body);
+        $response = $this->nl_connect->get(self::URL_PREFIX . '/productmodule');
+        $properties_array = $this->_getPropertiesByXmlResponse($response->body);
 
-        if ($response_array) {
-            foreach ($response_array as $properties) {
+        if ($properties_array) {
+            foreach ($properties_array as $properties) {
                 $product_module = new ProductModule($properties);
                 $product_module->_update();
-                $product_modules_list[$properties['number']] = $product_module;
+                $list[$properties['number']] = $product_module;
             }
         }
 
-        return $product_modules_list;
-    }
-
-    public function getLastResponse()
-    {
-        return $this->_getLastResponse();
-    }
-
-    public function getLastResponseHeader($header_name)
-    {
-        return $this->_getLastResponseHeader($header_name);
+        return $list;
     }
 }

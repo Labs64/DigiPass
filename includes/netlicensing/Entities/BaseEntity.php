@@ -104,9 +104,9 @@ if (!class_exists('BaseEntity')) {
             return $this->_required_properties;
         }
 
-        public function isValid($display_errors = FALSE)
+        public function isValid()
         {
-            return $this->_isValid($display_errors);
+            return $this->_isValid();
         }
 
         protected function _setRequiredProperty($name, $allowed_values = array())
@@ -136,37 +136,15 @@ if (!class_exists('BaseEntity')) {
             }
         }
 
-        protected function _isValid($display_errors = FALSE)
+        protected function _isValid()
         {
             $is_valid = TRUE;
-
-            $missing_properties = array();
-            $invalid_allowed_values = array();
-
             if ($this->_required_properties) {
                 foreach ($this->_required_properties as $name => $data) {
                     if (!empty($data['required'])) {
-                        if (empty($this->_properties[$name])) {
-                            $is_valid = FALSE;
-
-                            $missing_properties[$name] = $name;
-                        }
-
-                        if (!empty($data['allowed_values']) && !in_array($this->_properties[$name], $data['allowed_values'])) {
-                            $is_valid = FALSE;
-                            $invalid_allowed_values[$name] = $name . ' allowed values (' . implode(',', $data['allowed_values']) . ') got ' . $this->_properties[$name];
-                        }
+                        if (empty($this->_properties[$name])) $is_valid = FALSE;
+                        if (!empty($data['allowed_values']) && !in_array($this->_properties[$name], $data['allowed_values'])) $is_valid = FALSE;
                     }
-                }
-            }
-
-            if (!$is_valid && $display_errors) {
-                if ($missing_properties) {
-                    throw new NetLicensingException('Missing required properties: ' . implode(',', $missing_properties));
-                }
-
-                if ($invalid_allowed_values) {
-                    throw new NetLicensingException('Invalid required properties: ' . implode(',', $invalid_allowed_values));
                 }
             }
 
