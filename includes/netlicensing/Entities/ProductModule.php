@@ -3,61 +3,61 @@ namespace NetLicensing;
 
 class ProductModule extends BaseEntity
 {
-    protected function init($properties)
+    public function __construct(array $properties = array())
     {
-        //add Required Properties for ProductModule
-        $this->_setRequiredProperty('name');
-        $this->_setRequiredProperty('productNumber');
-        $this->_setRequiredProperty('licensingModel');
+        $this->_setProperties($properties);
     }
 
-    /**
-     * @param string $name
-     */
-    public function setName($name)
+    public function setNumber($number, $refresh = FALSE)
     {
-        $this->_setProperty('name', $name);
+        $this->_setProperty('number', $number, $refresh);
     }
 
-    /**
-     * @return string name
-     */
-    public function getName()
+    public function getNumber($default = '')
     {
-        return $this->_getProperty('name');
+        return $this->_getProperty('number', $default);
     }
 
-    /**
-     * @param string $product_number
-     */
-    public function setProductNumber($product_number)
+    public function setActive($state, $refresh = FALSE)
     {
-        $this->_setProperty('productNumber', $product_number);
+        if (is_bool($state)) $state = ($state) ? 'true' : 'false';
+
+        $this->_setProperty('active', $state, $refresh);
     }
 
-    /**
-     * @return string productNumber
-     */
-    public function getProductNumber()
+    public function getActive()
     {
-        return $this->_getProperty('product_number');
+        return ($this->_getProperty('active'));
     }
 
-    /**
-     * @param string $licensingModel
-     */
-    public function setLicensingModel($licensingModel)
+    public function setName($name, $refresh = FALSE)
     {
-        $this->_setProperty('licensingModel', ucfirst($licensingModel));
+        $this->_setProperty('name', $name, $refresh);
     }
 
-    /**
-     * @return string licensingModel
-     */
-    public function getLicensingModel()
+    public function getName($default = '')
     {
-        return $this->_getProperty('licensingModel');
+        return $this->_getProperty('name', $default);
     }
 
+    public function setProductNumber($product_number, $refresh = FALSE)
+    {
+        $this->_setProperty('productNumber', $product_number, $refresh);
+    }
+
+    public function getProductNumber($default = '')
+    {
+        return $this->_getProperty('productNumber', $default);
+    }
+
+    public function setLicensingModel($licensingModel, $refresh = FALSE)
+    {
+        $this->_setProperty('licensingModel', ucfirst($licensingModel), $refresh);
+    }
+
+    public function getLicensingModel($default = '')
+    {
+        return $this->_getProperty('licensingModel', $default);
+    }
 
 }

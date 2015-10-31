@@ -26,9 +26,11 @@ if (!defined('WPINC')) {
     die;
 }
 
-define('DIGIPASS_DIR',plugin_dir_path(__FILE__));
+define('DIGIPASS_DIR', plugin_dir_path(__FILE__));
+define('DIGIPASS_NL_BASE_URL', 'https://netlicensing.labs64.com/core/v2/rest');
 
 // main
+require_once(DIGIPASS_DIR . 'public/digipass-class-base.php');
 require_once(DIGIPASS_DIR . 'public/digipass-class.php');
 require_once(DIGIPASS_DIR . 'public/digipass-functions.php');
 
@@ -38,6 +40,7 @@ require_once(DIGIPASS_DIR . 'includes/netlicensing/netlicensing-load.php');
 // Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
 register_activation_hook(__FILE__, array('DigiPass', 'activate'));
 register_deactivation_hook(__FILE__, array('DigiPass', 'deactivate'));
+register_uninstall_hook(__FILE__, array('DigiPass', 'uninstall'));
 
 add_action('plugins_loaded', array('DigiPass', 'get_instance'));
 

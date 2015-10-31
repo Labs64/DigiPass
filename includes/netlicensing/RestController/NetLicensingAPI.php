@@ -9,11 +9,10 @@
 namespace NetLicensing;
 
 use Curl;
+use CurlResponse;
 
 class NetLicensingAPI
 {
-    const BASE_URL = 'https://netlicensing.labs64.com/';
-
     const BASIC_AUTHENTICATION = 0;
     const API_KEY_IDENTIFICATION = 1;
 
@@ -25,13 +24,25 @@ class NetLicensingAPI
 
     /** @var $_curl Curl */
     private $_curl;
+    private $_base_url = '';
 
-    private $_last_response = array();
+    /** @var $_last_response CurlResponse  */
+    private $_last_response = null;
     private $_success_required = TRUE;
 
-    public function __construct()
+    public function __construct($base_url)
     {
+        if (filter_var($base_url, FILTER_VALIDATE_URL) === false) {
+            throw new NetLicensingException($base_url . ' is not a valid URL');
+        }
+
+        $this->_base_url = $base_url;
         $this->_curl = new Curl();
+    }
+
+    public static function connect($base_url)
+    {
+        return new NetLicensingAPI($base_url);
     }
 
     public function setUserName($username)
@@ -67,7 +78,7 @@ class NetLicensingAPI
     public function setSecurityCode($security_flag)
     {
         if ($security_flag != self::BASIC_AUTHENTICATION && $security_flag != self::API_KEY_IDENTIFICATION) {
-            throw new NetLicensingAPIException('Wrong authentication flag');
+            throw new NetLicensingException('Wrong authentication flag');
         }
 
         $this->_security_code = $security_flag;
@@ -102,7 +113,7 @@ class NetLicensingAPI
             case 'application/xml':
                 break;
             default:
-                throw new NetLicensingAPIException(printf('Got unsupported response format %s', $format));
+                throw new NetLicensingException(printf('Got unsupported response format %s', $format));
                 break;
         }
 
@@ -145,49 +156,60 @@ class NetLicensingAPI
 
         $method = strtoupper($method);
         if (!in_array($method, $allowed_requests_types)) {
-            throw new NetLicensingAPIException('Invalid request type:' . $method . ', allowed requests types: GET, POST, PUT, DELETE.');
+            throw new NetLicensingException('Invalid request type:' . $method . ', allowed requests types: GET, POST, DELETE.');
         }
 
         switch ($this->_security_code) {
             case self::BASIC_AUTHENTICATION:
 
-                if (empty($this->_username)) throw new NetLicensingAPIException('Missing parameter "username" for connection');
-                if (empty($this->_password)) throw new NetLicensingAPIException('Missing parameter "password" for connection');
+                if (empty($this->_username)) throw new NetLicensingException('Missing parameter "username" for connection');
+                if (empty($this->_password)) throw new NetLicensingException('Missing parameter "password" for connection');
 
                 $this->_curl->headers['Authorization'] = 'Basic ' . base64_encode($this->_username . ":" . $this->_password);
                 break;
             case self::API_KEY_IDENTIFICATION:
 
-                if (empty($this->_api_key)) throw new NetLicensingAPIException('Missing parameter "apiKey" for connection');
+                if (empty($this->_api_key)) throw new NetLicensingException('Missing parameter "apiKey" for connection');
 
                 $this->_curl->headers['Authorization'] = 'Basic ' . base64_encode("apiKey:" . $this->_api_key);
                 break;
             default:
-                throw new NetLicensingAPIException('Missing or wrong authentication security code');
+                throw new NetLicensingException('Missing or wrong authentication security code');
                 break;
         }
 
-        $url = str_replace(self::BASE_URL, '', $url);
-        $url = self::BASE_URL . $url;
+        $url = $this->_base_url . $url;
 
-        $this->_last_response = $this->_curl->request($method, $url, $params);
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+            throw new NetLicensingException($url . ' is not a valid URL');
+        }
+
+        switch($method){
+            case 'GET':
+                $this->_last_response = $this->_curl->get($url, $params);
+                break;
+            case 'POST':
+                $this->_last_response = $this->_curl->post($url, $params);
+                break;
+            case 'DELETE':
+                $this->_last_response = $this->_curl->delete($url, $params);
+                break;
+        }
 
         if ($this->_success_required) {
             switch ($this->_last_response->headers['Status-Code']) {
                 case '200':
                     break;
-                case '404':
+                case '204':
                     break;
                 default:
                     if ($this->_last_response) {
                         $status_code = $this->_last_response->headers['Status-Code'];
+                        $status_description = self::getInfoByXml($this->_last_response->body);
 
-                        $xml = simplexml_load_string($this->_last_response->body);
-                        $status_description = (string)$xml->infos->info;
-
-                        throw new NetLicensingAPIException(sprintf('Bad response, result code %1$s: %2$s', $status_code, $status_description));
-                    }else{
-                        throw new NetLicensingAPIException('Can not connect to the NetLicensing server');
+                        throw new NetLicensingException($status_description, $status_code);
+                    } else {
+                        throw new NetLicensingException('Can not connect to the NetLicensing server');
                     }
 
                     break;
@@ -196,8 +218,70 @@ class NetLicensingAPI
 
         return $this->_last_response;
     }
-}
 
-class NetLicensingAPIException extends \Exception
-{
+    public static function getPropertiesByXml($xml)
+    {
+        $properties = array();
+
+        if (is_string($xml)) {
+            $xml = simplexml_load_string($xml);
+        }
+
+        if ($xml instanceof \SimpleXMLElement) {
+            if (!empty($xml->items->item)) {
+                foreach ($xml->items->item as $item) {
+                    if ($item->property) {
+                        $tmp_array = array();
+                        foreach ($item->property as $property) {
+                            $name = (string)$property['name'];
+                            $value = (string)$property;
+                            $tmp_array[$name] = $value;
+                        }
+                        $properties[] = $tmp_array;
+                    }
+                }
+            }
+        }
+
+        return $properties;
+    }
+
+    public static function getPropertiesByJson($json)
+    {
+        $properties = array();
+
+        $response = $json;
+
+        if (is_string($json)) {
+            $response = json_decode($json);
+        }
+
+        if (!empty($response->items->item)) {
+
+            foreach ($response->items->item as $item) {
+                $tmp_array = array();
+
+                foreach ($item->property as $property) {
+                    $property = (array)$property;
+                    $tmp_array[$property['@name']] = $property['$'];
+
+                }
+                if (!empty($tmp_array['number'])) {
+                    $properties[$tmp_array['number']] = $tmp_array;
+                }
+            }
+        }
+
+        return $properties;
+    }
+
+    public static function getInfoByXml($xml)
+    {
+
+        if (is_string($xml)) {
+            $xml = simplexml_load_string($xml);
+        }
+
+        return (string)$xml->infos->info;
+    }
 }

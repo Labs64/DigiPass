@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DigiPass .
  *
@@ -8,8 +9,7 @@
  * @link      http://www.labs64.com
  * @copyright 2014 Labs64
  */
-
-class DigiPass
+class DigiPass extends BaseDigiPass
 {
 
     /**
@@ -46,6 +46,16 @@ class DigiPass
         // Load public-facing style sheet and JavaScript.
         add_action('wp_enqueue_scripts', array($this, 'enqueue_styles'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+
+        //Validate pages and posts
+        add_action('template_redirect', array($this, 'check_page_nl_connection'), 1000);
+
+        //add licensee numbers to users list
+        add_filter('manage_users_columns', array($this, 'user_column_licensee_number'));
+        add_filter('manage_users_custom_column', array($this, 'user_column_licensee_number_row'), 10, 3);
+
+        //cron
+        add_action('digipass_cron', array($this, 'cron'));
     }
 
     /**
@@ -78,7 +88,7 @@ class DigiPass
     /**
      * Fired when the plugin is activated.
      *
-     * @param    boolean $network_wide    True if WPMU superadmin uses
+     * @param    boolean $network_wide True if WPMU superadmin uses
      *                                       "Network Activate" action, false if
      *                                       WPMU is disabled or plugin is
      *                                       activated on an individual blog.
@@ -114,7 +124,7 @@ class DigiPass
     /**
      * Fired when the plugin is deactivated.
      *
-     * @param    boolean $network_wide    True if WPMU superadmin uses
+     * @param    boolean $network_wide True if WPMU superadmin uses
      *                                       "Network Deactivate" action, false if
      *                                       WPMU is disabled or plugin is
      *                                       deactivated on an individual blog.
@@ -148,6 +158,41 @@ class DigiPass
 
     }
 
+    /**
+     * Fired when the plugin is uninstall.
+     *
+     * @param    boolean $network_wide True if WPMU superadmin uses
+     *                                       "Network Deactivate" action, false if
+     *                                       WPMU is disabled or plugin is
+     *                                       deactivated on an individual blog.
+     */
+    public static function uninstall($network_wide)
+    {
+        if (function_exists('is_multisite') && is_multisite()) {
+
+            if ($network_wide) {
+
+                // Get all blog ids
+                $blog_ids = self::get_blog_ids();
+
+                foreach ($blog_ids as $blog_id) {
+
+                    switch_to_blog($blog_id);
+                    self::single_uninstall();
+
+                    restore_current_blog();
+
+                }
+
+            } else {
+                self::single_uninstall();
+            }
+
+        } else {
+            self::single_uninstall();
+        }
+
+    }
 
     /**
      * Fired when a new site is activated with a WPMU environment.
@@ -194,7 +239,62 @@ class DigiPass
      */
     private static function single_activate()
     {
+        global $wpdb;
 
+        $connection_table = $wpdb->prefix . 'nl_connection';
+
+        if ($wpdb->get_var('SHOW TABLES LIKE "' . $connection_table . '"') != $connection_table) {
+            $connection_table_sql = "CREATE TABLE " . $connection_table . "(
+                                      ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                      post_ID BIGINT(20) UNSIGNED NOT NULL,
+                                      product_number TEXT NOT NULL ,
+                                      product_module_number TEXT NOT NULL,
+                                      PRIMARY KEY (ID),
+                                      INDEX post_ID (post_ID)
+                                    ) ENGINE=INNODB;";
+
+
+            $wpdb->query($connection_table_sql);
+        }
+
+
+        $validation_table = $wpdb->prefix . 'nl_validations';
+        if ($wpdb->get_var('SHOW TABLES LIKE "' . $validation_table . '"') != $validation_table) {
+            $validations_table_sql = "CREATE TABLE " . $validation_table . "(
+                                      ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                      c_ID BIGINT(20) UNSIGNED NOT NULL,
+                                      u_ID BIGINT(20) UNSIGNED NOT NULL,
+                                      licensee_number VARCHAR(255) NOT NULL DEFAULT '',
+                                      ttl INT(11) NOT NULL DEFAULT 0,
+                                      PRIMARY KEY (ID),
+                                      INDEX licensee_number (licensee_number),
+                                      INDEX c_ID (c_ID),
+                                      INDEX ttl (ttl),
+                                      INDEX licensee_and_connection (licensee_number, c_ID)
+                                    )ENGINE=INNODB;";
+            $wpdb->query($validations_table_sql);
+        }
+
+
+        $tokens_table = $wpdb->prefix . 'nl_tokens';
+        if ($wpdb->get_var('SHOW TABLES LIKE "' . $tokens_table . '"') != $tokens_table) {
+            $tokens_table_sql = "CREATE TABLE " . $tokens_table . "(
+                                 ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                 number VARCHAR(255) NOT NULL DEFAULT '',
+                                 u_ID BIGINT(20) UNSIGNED NOT NULL,
+                                 licensee_number VARCHAR(255) NOT NULL DEFAULT '',
+                                 expiration INT(11) NOT NULL DEFAULT 0,
+                                 shop_url VARCHAR(255) DEFAULT '',
+                                 PRIMARY KEY (ID),
+                                 INDEX licensee_number (licensee_number)
+                            )ENGINE=INNODB;";
+            $wpdb->query($tokens_table_sql);
+        }
+
+        $digi_pass = DigiPass::get_instance();
+        $digi_pass->_dp_set_single_option(self::DP_OPTION_PREFIX . 'salt', uniqid('DigiPass', TRUE));
+
+        wp_schedule_event(time(), 'hourly', 'digipass_cron');
     }
 
     /**
@@ -202,7 +302,22 @@ class DigiPass
      */
     private static function single_deactivate()
     {
-        // Deactivation functionality
+        wp_clear_scheduled_hook('digipass_cron');
+    }
+
+    private static function single_uninstall()
+    {
+        global $wpdb;
+
+        $connection_table = $wpdb->prefix . 'nl_connection';
+        $validation_table = $wpdb->prefix . 'nl_validations';
+        $token_table = $wpdb->prefix . 'nl_tokens';
+
+        $wpdb->query("DROP TABLE " . $token_table . ";");
+        $wpdb->query("DROP TABLE " . $validation_table . ";");
+        $wpdb->query("DROP TABLE " . $connection_table . ";");
+
+        delete_option(self::DP_OPTIONS);
     }
 
     /**
@@ -233,5 +348,205 @@ class DigiPass
     public function enqueue_scripts()
     {
         wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/dp-public.js', __FILE__), array('jquery'), self::VERSION);
+    }
+
+    public function check_page_nl_connection()
+    {
+        global $post;
+        global $wpdb;
+        global $current_user;
+
+        //check post type
+        if ($post->post_type == 'page') {
+
+            $admin_email = get_option('admin_email');
+            $username = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'username');
+            $password = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'password');
+
+            //check if exist nl connection with page
+            $connection_table_name = $wpdb->prefix . 'nl_connection';
+            $connection_with_nl = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $connection_table_name . " WHERE post_ID = %d  LIMIT 0, 1;", $post->ID));
+
+            if (!empty($connection_with_nl)) {
+                if (!is_user_logged_in()) {
+                    $this->include_template('digipass-error', array(
+                        'code' => 'not_authorized',
+                        'title' => __('Access denied'),
+                        'message' => __('You are not authorized to access this page.')
+                    ));
+                    exit;
+                } else {
+
+                    //check if user don't have administrators rights
+                    if (!in_array('administrator', $current_user->roles)) {
+
+                        //get user hash
+                        $salt = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'salt');
+                        $licensee_number = hash('sha1', $salt . $current_user->user_login);
+
+                        //check db validation
+                        $validation_table_name = $wpdb->prefix . 'nl_validations';
+                        $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $validation_table_name . " WHERE c_ID = %d AND licensee_number = %s LIMIT 0, 1;", $connection_with_nl->ID, $licensee_number));
+
+                        $validate_state = FALSE;
+
+                        if ($record) {
+                            if ($record->ttl > time()) {
+                                $validate_state = TRUE;
+                            } else {
+                                $wpdb->query($wpdb->prepare("DELETE FROM " . $validation_table_name . " WHERE post_ID = %d  AND licensee_number = %s;", $post->ID, $licensee_number));
+                            }
+                        }
+
+                        if (!$validate_state) {
+
+                            try {
+                                //set connection params
+                                $nl_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NL_BASE_URL);
+                                $nl_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
+                                $nl_connect->setUserName($username);
+                                $nl_connect->setPassword($password);
+
+                                $licensee_service = new \NetLicensing\LicenseeService($nl_connect);
+                                $validation = $licensee_service->validate($licensee_number, $connection_with_nl->product_number, $current_user->user_login);
+
+                                if ($validation) {
+                                    foreach ($validation as $data) {
+                                        if ($data['productModuleNumber'] == $connection_with_nl->product_module_number && $data['valid']) {
+                                            $last_response = $nl_connect->getLastResponse();
+                                            $xml = simplexml_load_string($last_response->body);
+                                            $ttl = (string)$xml['ttl'];
+                                            //save to db
+                                            $wpdb->insert($validation_table_name, array(
+                                                'c_ID' => $connection_with_nl->ID,
+                                                'u_ID' => $current_user->ID,
+                                                'licensee_number' => $licensee_number,
+                                                'ttl' => strtotime($ttl)
+                                            ));
+                                            $validate_state = TRUE;
+                                        }
+                                    }
+                                }
+
+                                if (!$validate_state) {
+                                    $shop_url = '';
+
+                                    //check db token
+                                    $tokens_table = $wpdb->prefix . 'nl_tokens';
+                                    $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $tokens_table . " WHERE  licensee_number = %s LIMIT 0, 1;", $licensee_number));
+
+                                    if ($record) {
+                                        if ($record->expiration > time()) {
+                                            $shop_url = $record->shop_url;
+                                        } else {
+                                            $wpdb->query($wpdb->prepare("DELETE FROM " . $tokens_table . " WHERE licensee_number = %s ;", $licensee_number));
+                                        }
+
+                                    }
+
+                                    if (empty($shop_url)) {
+                                        //create new token
+                                        $token_service = new \NetLicensing\TokenService($nl_connect);
+                                        $token = $token_service->create('SHOP', $licensee_number);
+
+                                        //save to db
+                                        $wpdb->insert($tokens_table, array(
+                                            'number' => $token->getNumber(),
+                                            'u_ID' => $current_user->ID,
+                                            'licensee_number' => $token->getLicenseeNumber(),
+                                            'expiration' => strtotime($token->getExpirationTime()),
+                                            'shop_url' => $token->getShopUrl()
+                                        ));
+
+                                        $shop_url = $token->getShopUrl();
+                                    }
+
+                                    if (empty($shop_url)) {
+                                        throw new \NetLicensing\NetLicensingException('Shop url empty');
+                                    }
+
+                                    $this->include_template('digipass-shop', array(
+                                        'title' => __('Access denied'),
+                                        'shop_url' => $shop_url,
+                                        'message' => __('You do not have access to the contents of this page. To access, go to the <a href="' . $shop_url . '">Store</a> and purchase a license.', $this->plugin_slug)
+                                    ));
+                                    exit;
+                                }
+
+
+                            } catch (\NetLicensing\NetLicensingException $e) {
+
+                                $this->include_template('digipass-error', array(
+                                    'code' => $e->getCode(),
+                                    'error' => $e->getMessage(),
+                                    'title' => __('Access denied'),
+                                    'message' => __('Error in the work with the license server, contact your site administrator.'),
+                                ));
+
+                                //send error to site administrator
+                                $message = array();
+                                $message[] = __('Type: ') . get_class($e) . ' [' . $e->getCode() . ']';
+                                $message[] = __('Date: ') . date('Y/m/d H:i:s');
+                                $message[] = __('User: ') . $current_user->user_login . '(' . $current_user->display_name . ')';
+                                $message[] = __('Location: ') . '<a href="' . get_permalink($post->ID) . '">' . get_permalink($post->ID) . '</a>';
+                                $message[] = __('Message: ') . $e->getMessage();
+                                $message[] = __('File: ') . $e->getFile();
+                                $message[] = __('Line: ') . $e->getLine();
+                                $message[] = __('Importance: ') . __('Error');
+
+                                $headers = array('Content-Type: text/html; charset=UTF-8');
+
+                                wp_mail($admin_email, 'NetLicensing Error', implode("\n", $message), $headers);
+                                exit;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function include_template($template_name, $variables = array())
+    {
+        $active_template_dir = get_template_directory();
+        if (file_exists($active_template_dir . '/' . $template_name . '.php')) {
+            extract($variables);
+            include($active_template_dir . '/' . $template_name . '.php');
+        } else {
+            extract($variables);
+            include(DIGIPASS_DIR . '/templates/' . $template_name . '.php');
+        }
+    }
+
+    public function user_column_licensee_number($column)
+    {
+        $column['licensee_number'] = __('Licensee number');
+        return $column;
+    }
+
+    public function user_column_licensee_number_row($val, $column_name, $user_id)
+    {
+        $user = get_userdata($user_id);
+        switch ($column_name) {
+            case 'licensee_number' :
+                //get user hash
+                $salt = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'salt');
+                $licensee_number = hash('sha1', $salt . $user->user_login);
+                return $licensee_number;
+                break;
+            default:
+        }
+    }
+
+    public function cron(){
+        global $wpdb;
+
+        //delete validations
+        $validation_table_name = $wpdb->prefix . 'nl_validations';
+        $wpdb->query($wpdb->prepare("DELETE FROM " . $validation_table_name . " WHERE ttl < %d;", time()));
+
+        //delete tokens
+        $tokens_table = $wpdb->prefix . 'nl_tokens';
+        $wpdb->query($wpdb->prepare("DELETE FROM " . $tokens_table . " WHERE expiration < %d;", time()));
     }
 }

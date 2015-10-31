@@ -2,14 +2,15 @@
 /**
  * Created by PhpStorm.
  * User: Black
- * Date: 20.10.2015
- * Time: 14:34
+ * Date: 28.10.2015
+ * Time: 5:39
  */
 
 namespace NetLicensing;
 
-class ProductModuleService extends BaseEntityService
-{
+
+class ProductService extends BaseEntityService {
+
     public function init()
     {
         $this->nl_connect->setResponseFormat('xml');
@@ -17,7 +18,7 @@ class ProductModuleService extends BaseEntityService
 
     public static function connect(NetLicensingAPI $nl_connect)
     {
-        return new ProductModuleService($nl_connect);
+        return new ProductService($nl_connect);
     }
 
     public function getList()
@@ -35,12 +36,12 @@ class ProductModuleService extends BaseEntityService
         return $this->_get($number, $this->nl_connect);
     }
 
-    public function create(ProductModule $product_module)
+    public function create(Product $product_module)
     {
         return $this->_create($product_module, $this->nl_connect);
     }
 
-    public function update(ProductModule $product_module)
+    public function update(Product $product_module)
     {
         return $this->_update($product_module, $this->nl_connect);
     }
@@ -52,11 +53,11 @@ class ProductModuleService extends BaseEntityService
 
     protected function _getNewEntity()
     {
-        return new ProductModule();
+        return new Product();
     }
 
     protected function _getServiceUrlPart()
     {
-        return '/productmodule';
+        return '/product';
     }
-}
+} 
