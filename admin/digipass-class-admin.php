@@ -248,7 +248,7 @@ class DigiPass_Admin extends BaseDigiPass
 
         add_settings_field(
             self::DIGIPASS_OPTION_PREFIX . 'username',
-            __('NetLicensing Username', $this->plugin_slug),
+            __('Username', $this->plugin_slug),
             array($this, 'dp_text_field_callback'),
             $this->plugin_slug,
             'DIGIPASS_COMMON_SETTINGS',
@@ -261,7 +261,7 @@ class DigiPass_Admin extends BaseDigiPass
 
         add_settings_field(
             self::DIGIPASS_OPTION_PREFIX . 'password',
-            __('NetLicensing Password', $this->plugin_slug),
+            __('Password', $this->plugin_slug),
             array($this, 'dp_password_field_callback'),
             $this->plugin_slug,
             'DIGIPASS_COMMON_SETTINGS',
@@ -344,7 +344,7 @@ class DigiPass_Admin extends BaseDigiPass
         $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
         if (empty($username) || empty($password)) {
-            echo __('Set username and password on the <a href="/wp-admin/options-general.php?page=digipass">settings page</a>', $this->plugin_slug);
+            echo __('Define username and password on the <a href="/wp-admin/options-general.php?page=digipass">settings page</a>', $this->plugin_slug);
             return FALSE;
         }
 
@@ -379,7 +379,7 @@ class DigiPass_Admin extends BaseDigiPass
         }
 
         if (empty($product_modules)) {
-            echo __('Create at least one product module with Try & Buy or Subscription Licensing Model on the <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml">Product Modules</a> page', $this->plugin_slug);
+            echo __('Create at least one product module using <i>Try & Buy</i> or <i>Subscription</i> Licensing Model at NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
             return FALSE;
         }
 
@@ -397,7 +397,7 @@ class DigiPass_Admin extends BaseDigiPass
             $options .= '<option ' . $selected . ' value="' . $product_module_number . '">' . $product_module_name . ' (' . $product_module_number . ')' . '</option>';
         }
 
-        echo '<p>' . __('Product Modules') . '</p>
+        echo '<p>' . __('Select content licensing model') . '</p>
         <p><select name="dp_product_module">' . $options . '</select></p>';
     }
 

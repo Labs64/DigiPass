@@ -12,7 +12,6 @@ define('DIGIPASS_TABLE_CONNECTIONS', $wpdb->prefix . 'digipass_connections');
 define('DIGIPASS_TABLE_VALIDATIONS', $wpdb->prefix . 'digipass_validations');
 define('DIGIPASS_TABLE_TOKENS', $wpdb->prefix . 'digipass_tokens');
 
-define('DIGIPASS_SALT', uniqid('DigiPass', TRUE));
 define('DIGIPASS_NLIC_BASE_URL', 'https://netlicensing.labs64.com/core/v2/rest');
 
 

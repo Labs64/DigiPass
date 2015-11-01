@@ -14,4 +14,4 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
-delete_option(DIGIPASS_OPTIONS);
+delete_option('DIGIPASS_OPTIONS');

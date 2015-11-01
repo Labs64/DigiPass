@@ -241,11 +241,11 @@ class DigiPass extends BaseDigiPass
 
         if ($wpdb->get_var('SHOW TABLES LIKE "' . DIGIPASS_TABLE_CONNECTIONS . '"') != DIGIPASS_TABLE_CONNECTIONS) {
             $connection_table_sql = "CREATE TABLE " . DIGIPASS_TABLE_CONNECTIONS . "(
-                                      ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                      connection_ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                                       post_ID BIGINT(20) UNSIGNED NOT NULL,
                                       product_number TEXT NOT NULL ,
                                       product_module_number TEXT NOT NULL,
-                                      PRIMARY KEY (ID),
+                                      PRIMARY KEY (connection_ID),
                                       INDEX post_ID (post_ID)
                                     ) ENGINE=INNODB;";
 
@@ -256,30 +256,30 @@ class DigiPass extends BaseDigiPass
 
         if ($wpdb->get_var('SHOW TABLES LIKE "' . DIGIPASS_TABLE_VALIDATIONS . '"') != DIGIPASS_TABLE_VALIDATIONS) {
             $validations_table_sql = "CREATE TABLE " . DIGIPASS_TABLE_VALIDATIONS . "(
-                                      ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-                                      c_ID BIGINT(20) UNSIGNED NOT NULL,
-                                      u_ID BIGINT(20) UNSIGNED NOT NULL,
+                                      validation_ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                      connection_ID BIGINT(20) UNSIGNED NOT NULL,
+                                      user_ID BIGINT(20) UNSIGNED NOT NULL,
                                       licensee_number VARCHAR(255) NOT NULL DEFAULT '',
                                       ttl INT(11) NOT NULL DEFAULT 0,
-                                      PRIMARY KEY (ID),
+                                      PRIMARY KEY (validation_ID),
                                       INDEX licensee_number (licensee_number),
-                                      INDEX c_ID (c_ID),
+                                      INDEX connection_ID (connection_ID),
                                       INDEX ttl (ttl),
-                                      INDEX licensee_and_connection (licensee_number, c_ID)
-                                    )ENGINE=INNODB;";
+                                      INDEX licensee_and_connection (licensee_number, connection_ID)
+                                    ) ENGINE=INNODB;";
             $wpdb->query($validations_table_sql);
         }
 
 
         if ($wpdb->get_var('SHOW TABLES LIKE "' . DIGIPASS_TABLE_TOKENS . '"') != DIGIPASS_TABLE_TOKENS) {
             $tokens_table_sql = "CREATE TABLE " . DIGIPASS_TABLE_TOKENS . "(
-                                 ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-                                 number VARCHAR(255) NOT NULL DEFAULT '',
-                                 u_ID BIGINT(20) UNSIGNED NOT NULL,
+                                 token_ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                 user_ID BIGINT(20) UNSIGNED NOT NULL,
+                                 token_number VARCHAR(255) NOT NULL DEFAULT '',
+                                 token_expiration INT(11) NOT NULL DEFAULT 0,
                                  licensee_number VARCHAR(255) NOT NULL DEFAULT '',
-                                 expiration INT(11) NOT NULL DEFAULT 0,
                                  shop_url VARCHAR(255) DEFAULT '',
-                                 PRIMARY KEY (ID),
+                                 PRIMARY KEY (token_ID),
                                  INDEX licensee_number (licensee_number)
                             )ENGINE=INNODB;";
             $wpdb->query($tokens_table_sql);
@@ -351,9 +351,9 @@ class DigiPass extends BaseDigiPass
             $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
             //check if exist nl connection with page
-            $connection_with_nl = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . DIGIPASS_TABLE_CONNECTIONS . " WHERE post_ID = %d  LIMIT 0, 1;", $post->ID));
+            $nlic_connection = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . DIGIPASS_TABLE_CONNECTIONS . " WHERE post_ID = %d  LIMIT 0, 1;", $post->ID));
 
-            if (!empty($connection_with_nl)) {
+            if (!empty($nlic_connection)) {
                 if (!is_user_logged_in()) {
                     $this->include_template('digipass-error', array(
                         'code' => 'not_authorized',
@@ -367,11 +367,10 @@ class DigiPass extends BaseDigiPass
                     if (!in_array('administrator', $current_user->roles)) {
 
                         //get user hash
-                        $licensee_number = hash('sha1', DIGIPASS_SALT . $current_user->user_login);
+                        $licensee_number = $this->dp_get_licensee_number($current_user);
 
                         //check db validation
-                        $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . DIGIPASS_TABLE_VALIDATIONS . " WHERE c_ID = %d AND licensee_number = %s LIMIT 0, 1;", $connection_with_nl->ID, $licensee_number));
-
+                        $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . DIGIPASS_TABLE_VALIDATIONS . " WHERE connection_ID = %d AND licensee_number = %s LIMIT 0, 1;", $nlic_connection->connection_ID, $licensee_number));
                         $validate_state = FALSE;
 
                         if ($record) {
@@ -392,18 +391,18 @@ class DigiPass extends BaseDigiPass
                                 $nlic_connect->setPassword($password);
 
                                 $licensee_service = new \NetLicensing\LicenseeService($nlic_connect);
-                                $validation = $licensee_service->validate($licensee_number, $connection_with_nl->product_number, $current_user->user_login);
+                                $validation = $licensee_service->validate($licensee_number, $nlic_connection->product_number, $current_user->user_login);
 
                                 if ($validation) {
                                     foreach ($validation as $data) {
-                                        if ($data['productModuleNumber'] == $connection_with_nl->product_module_number && $data['valid']) {
+                                        if ($data['productModuleNumber'] == $nlic_connection->product_module_number && $data['valid'] == 'true') {
                                             $last_response = $nlic_connect->getLastResponse();
                                             $xml = simplexml_load_string($last_response->body);
                                             $ttl = (string)$xml['ttl'];
                                             //save to db
                                             $wpdb->insert(DIGIPASS_TABLE_VALIDATIONS, array(
-                                                'c_ID' => $connection_with_nl->ID,
-                                                'u_ID' => $current_user->ID,
+                                                'connection_ID' => $nlic_connection->connection_ID,
+                                                'user_ID' => $current_user->ID,
                                                 'licensee_number' => $licensee_number,
                                                 'ttl' => strtotime($ttl)
                                             ));
@@ -419,7 +418,7 @@ class DigiPass extends BaseDigiPass
                                     $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . DIGIPASS_TABLE_TOKENS . " WHERE  licensee_number = %s LIMIT 0, 1;", $licensee_number));
 
                                     if ($record) {
-                                        if ($record->expiration > time()) {
+                                        if ($record->token_expiration > time()) {
                                             $shop_url = $record->shop_url;
                                         } else {
                                             $wpdb->query($wpdb->prepare("DELETE FROM " . DIGIPASS_TABLE_TOKENS . " WHERE licensee_number = %s ;", $licensee_number));
@@ -434,10 +433,10 @@ class DigiPass extends BaseDigiPass
 
                                         //save to db
                                         $wpdb->insert(DIGIPASS_TABLE_TOKENS, array(
-                                            'number' => $token->getNumber(),
-                                            'u_ID' => $current_user->ID,
+                                            'user_ID' => $current_user->ID,
+                                            'token_number' => $token->getNumber(),
+                                            'token_expiration' => strtotime($token->getExpirationTime()),
                                             'licensee_number' => $token->getLicenseeNumber(),
-                                            'expiration' => strtotime($token->getExpirationTime()),
                                             'shop_url' => $token->getShopUrl()
                                         ));
 
@@ -445,17 +444,16 @@ class DigiPass extends BaseDigiPass
                                     }
 
                                     if (empty($shop_url)) {
-                                        throw new \NetLicensing\NetLicensingException('Shop url empty');
+                                        throw new \NetLicensing\NetLicensingException('Shop URL is empty');
                                     }
 
                                     $this->include_template('digipass-shop', array(
                                         'title' => __('Access denied'),
                                         'shop_url' => $shop_url,
-                                        'message' => __('You do not have access to the contents of this page. To access, go to the <a href="' . $shop_url . '">Store</a> and purchase a license.', $this->plugin_slug)
+                                        'message' => __('You do not have access to the content of this page. To access, go to the <a href="' . $shop_url . '" target="_blank">NetLicensing Shop</a> and purchase a license.', $this->plugin_slug)
                                     ));
                                     exit;
                                 }
-
 
                             } catch (\NetLicensing\NetLicensingException $e) {
 
@@ -463,11 +461,12 @@ class DigiPass extends BaseDigiPass
                                     'code' => $e->getCode(),
                                     'error' => $e->getMessage(),
                                     'title' => __('Access denied'),
-                                    'message' => __('Error in the work with the license server, contact your site administrator.'),
+                                    'message' => __('Error contacting NetLicensing license server. Please contact your site administrator.'),
                                 ));
 
                                 //send error to site administrator
                                 $message = array();
+                                $message[] = __('Severity: ') . __('Error');
                                 $message[] = __('Type: ') . get_class($e) . ' [' . $e->getCode() . ']';
                                 $message[] = __('Date: ') . date('Y/m/d H:i:s');
                                 $message[] = __('User: ') . $current_user->user_login . '(' . $current_user->display_name . ')';
@@ -475,7 +474,6 @@ class DigiPass extends BaseDigiPass
                                 $message[] = __('Message: ') . $e->getMessage();
                                 $message[] = __('File: ') . $e->getFile();
                                 $message[] = __('Line: ') . $e->getLine();
-                                $message[] = __('Importance: ') . __('Error');
 
                                 $headers = array('Content-Type: text/html; charset=UTF-8');
 
@@ -503,7 +501,7 @@ class DigiPass extends BaseDigiPass
 
     public function user_column_licensee_number($column)
     {
-        $column['licensee_number'] = __('Licensee number');
+        $column['licensee_number'] = __('DigiPass Licensee Number');
         return $column;
     }
 
@@ -513,7 +511,7 @@ class DigiPass extends BaseDigiPass
         switch ($column_name) {
             case 'licensee_number' :
                 //get user hash
-                $licensee_number = hash('sha1', DIGIPASS_SALT . $user->user_login);
+                $licensee_number = $this->dp_get_licensee_number($user);
                 return $licensee_number;
                 break;
             default:
@@ -528,7 +526,12 @@ class DigiPass extends BaseDigiPass
         $wpdb->query($wpdb->prepare("DELETE FROM " . DIGIPASS_TABLE_VALIDATIONS . " WHERE ttl < %d;", time()));
 
         //delete tokens
-        $wpdb->query($wpdb->prepare("DELETE FROM " . DIGIPASS_TABLE_TOKENS . " WHERE expiration < %d;", time()));
+        $wpdb->query($wpdb->prepare("DELETE FROM " . DIGIPASS_TABLE_TOKENS . " WHERE token_expiration < %d;", time()));
+    }
+
+    public function dp_get_licensee_number($current_user)
+    {
+        return hash('md5', $this->plugin_slug . $current_user->user_login);
     }
 
 }
