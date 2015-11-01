@@ -1,11 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Black
- * Date: 26.10.2015
- * Time: 11:20
- */
 
+/**
+ * @author    Labs64 <info@labs64.com>
+ * @license   GPL-2.0+
+ * @link      http://www.labs64.com
+ * @copyright 2015 Labs64
+ */
 namespace NetLicensing;
 
 use Curl;

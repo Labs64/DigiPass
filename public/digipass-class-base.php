@@ -1,15 +1,25 @@
 <?php
 
 /**
- * Created by PhpStorm.
- * User: Black
- * Date: 29.10.2015
- * Time: 8:11
+ * @author    Labs64 <info@labs64.com>
+ * @license   GPL-2.0+
+ * @link      http://www.labs64.com
+ * @copyright 2015 Labs64
  */
+
+global $wpdb;
+define('DIGIPASS_TABLE_CONNECTIONS', $wpdb->prefix . 'digipass_connections');
+define('DIGIPASS_TABLE_VALIDATIONS', $wpdb->prefix . 'digipass_validations');
+define('DIGIPASS_TABLE_TOKENS', $wpdb->prefix . 'digipass_tokens');
+
+define('DIGIPASS_SALT', uniqid('DigiPass', TRUE));
+define('DIGIPASS_NLIC_BASE_URL', 'https://netlicensing.labs64.com/core/v2/rest');
+
+
 abstract class BaseDigiPass
 {
-    const DP_OPTIONS = 'DP_OPTIONS';
-    const DP_OPTION_PREFIX = 'dp_netlicensing_';
+    const DIGIPASS_OPTIONS = 'DIGIPASS_OPTIONS';
+    const DIGIPASS_OPTION_PREFIX = 'DIGIPASS_OPTION_';
 
     /**
      * Returns default options.
@@ -18,10 +28,8 @@ abstract class BaseDigiPass
     protected function _dp_get_default_options()
     {
         $default_options = array(
-            self::DP_OPTION_PREFIX . 'apikey' => '',
-            'option2' => '0',
-            self::DP_OPTION_PREFIX . 'username' => '',
-            self::DP_OPTION_PREFIX . 'password' => '',
+            self::DIGIPASS_OPTION_PREFIX . 'username' => '',
+            self::DIGIPASS_OPTION_PREFIX . 'password' => '',
         );
 
         return $default_options;
@@ -33,12 +41,12 @@ abstract class BaseDigiPass
     protected function _dp_get_options()
     {
         $options = $this->_dp_get_default_options();
-        $stored_options = get_option(self::DP_OPTIONS);
+        $stored_options = get_option(self::DIGIPASS_OPTIONS);
         if (!empty($stored_options)) {
             $this->dp_sanitize_fields($stored_options);
             $options = wp_parse_args($stored_options, $options);
         }
-        update_option(self::DP_OPTIONS, $options);
+        update_option(self::DIGIPASS_OPTIONS, $options);
         return $options;
     }
 
@@ -58,7 +66,7 @@ abstract class BaseDigiPass
     {
         $options = $this->_dp_get_options();
         $options[$name] = $value;
-        update_option(self::DP_OPTIONS, $options);
+        update_option(self::DIGIPASS_OPTIONS, $options);
     }
 
     /**
@@ -68,10 +76,11 @@ abstract class BaseDigiPass
      */
     public function dp_sanitize_fields($input)
     {
-        if (isset($input[self::DP_OPTION_PREFIX . 'apikey'])) {
-            $input[self::DP_OPTION_PREFIX . 'apikey'] = sanitize_text_field($input[self::DP_OPTION_PREFIX . 'apikey']);
+        if (isset($input[self::DIGIPASS_OPTION_PREFIX . 'apikey'])) {
+            $input[self::DIGIPASS_OPTION_PREFIX . 'apikey'] = sanitize_text_field($input[self::DIGIPASS_OPTION_PREFIX . 'apikey']);
         }
 
         return $input;
     }
-} 
+
+}

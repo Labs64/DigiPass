@@ -1,11 +1,10 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: Black
- * Date: 30.10.2015
- * Time: 9:59
+ * @author    Labs64 <info@labs64.com>
+ * @license   GPL-2.0+
+ * @link      http://www.labs64.com
+ * @copyright 2015 Labs64
  */
-
 namespace NetLicensing;
 
 
@@ -13,22 +12,22 @@ class TokenService extends BaseEntityService
 {
     public function init()
     {
-        $this->nl_connect->setResponseFormat('xml');
+        $this->nlic_connect->setResponseFormat('xml');
     }
 
-    public static function connect(NetLicensingAPI $nl_connect)
+    public static function connect(NetLicensingAPI $nlic_connect)
     {
-        return new TokenService($nl_connect);
+        return new TokenService($nlic_connect);
     }
 
     public function getList()
     {
-        return $this->_getList($this->nl_connect);
+        return $this->_getList($this->nlic_connect);
     }
 
     public function get($number)
     {
-        return $this->_get($number, $this->nl_connect);
+        return $this->_get($number, $this->nlic_connect);
     }
 
     public function create($token_type = 'DEFAULT', $licensee_number = '')
@@ -44,7 +43,7 @@ class TokenService extends BaseEntityService
             $params['licenseeNumber'] = $licensee_number;
         }
 
-        $response = $this->nl_connect->post($this->_getServiceUrlPart(), $params);
+        $response = $this->nlic_connect->post($this->_getServiceUrlPart(), $params);
         $properties_array = NetLicensingAPI::getPropertiesByXml($response->body);
 
         if (empty($properties_array)) return FALSE;
@@ -60,7 +59,7 @@ class TokenService extends BaseEntityService
 
     public function delete($number)
     {
-        return $this->_delete($number, $this->nl_connect);
+        return $this->_delete($number, $this->nlic_connect);
     }
 
     protected function _getNewEntity()

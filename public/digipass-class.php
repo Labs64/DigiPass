@@ -1,13 +1,11 @@
 <?php
 
 /**
- * DigiPass .
- *
  * @package   DigiPass
  * @author    Labs64 <info@labs64.com>
  * @license   GPL-2.0+
  * @link      http://www.labs64.com
- * @copyright 2014 Labs64
+ * @copyright 2015 Labs64
  */
 class DigiPass extends BaseDigiPass
 {
@@ -48,7 +46,7 @@ class DigiPass extends BaseDigiPass
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
 
         //Validate pages and posts
-        add_action('template_redirect', array($this, 'check_page_nl_connection'), 1000);
+        add_action('template_redirect', array($this, 'check_page_nlic_connection'), 1000);
 
         //add licensee numbers to users list
         add_filter('manage_users_columns', array($this, 'user_column_licensee_number'));
@@ -241,10 +239,8 @@ class DigiPass extends BaseDigiPass
     {
         global $wpdb;
 
-        $connection_table = $wpdb->prefix . 'nl_connection';
-
-        if ($wpdb->get_var('SHOW TABLES LIKE "' . $connection_table . '"') != $connection_table) {
-            $connection_table_sql = "CREATE TABLE " . $connection_table . "(
+        if ($wpdb->get_var('SHOW TABLES LIKE "' . DIGIPASS_TABLE_CONNECTIONS . '"') != DIGIPASS_TABLE_CONNECTIONS) {
+            $connection_table_sql = "CREATE TABLE " . DIGIPASS_TABLE_CONNECTIONS . "(
                                       ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                                       post_ID BIGINT(20) UNSIGNED NOT NULL,
                                       product_number TEXT NOT NULL ,
@@ -258,9 +254,8 @@ class DigiPass extends BaseDigiPass
         }
 
 
-        $validation_table = $wpdb->prefix . 'nl_validations';
-        if ($wpdb->get_var('SHOW TABLES LIKE "' . $validation_table . '"') != $validation_table) {
-            $validations_table_sql = "CREATE TABLE " . $validation_table . "(
+        if ($wpdb->get_var('SHOW TABLES LIKE "' . DIGIPASS_TABLE_VALIDATIONS . '"') != DIGIPASS_TABLE_VALIDATIONS) {
+            $validations_table_sql = "CREATE TABLE " . DIGIPASS_TABLE_VALIDATIONS . "(
                                       ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                                       c_ID BIGINT(20) UNSIGNED NOT NULL,
                                       u_ID BIGINT(20) UNSIGNED NOT NULL,
@@ -276,9 +271,8 @@ class DigiPass extends BaseDigiPass
         }
 
 
-        $tokens_table = $wpdb->prefix . 'nl_tokens';
-        if ($wpdb->get_var('SHOW TABLES LIKE "' . $tokens_table . '"') != $tokens_table) {
-            $tokens_table_sql = "CREATE TABLE " . $tokens_table . "(
+        if ($wpdb->get_var('SHOW TABLES LIKE "' . DIGIPASS_TABLE_TOKENS . '"') != DIGIPASS_TABLE_TOKENS) {
+            $tokens_table_sql = "CREATE TABLE " . DIGIPASS_TABLE_TOKENS . "(
                                  ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                                  number VARCHAR(255) NOT NULL DEFAULT '',
                                  u_ID BIGINT(20) UNSIGNED NOT NULL,
@@ -290,9 +284,6 @@ class DigiPass extends BaseDigiPass
                             )ENGINE=INNODB;";
             $wpdb->query($tokens_table_sql);
         }
-
-        $digi_pass = DigiPass::get_instance();
-        $digi_pass->_dp_set_single_option(self::DP_OPTION_PREFIX . 'salt', uniqid('DigiPass', TRUE));
 
         wp_schedule_event(time(), 'hourly', 'digipass_cron');
     }
@@ -309,15 +300,11 @@ class DigiPass extends BaseDigiPass
     {
         global $wpdb;
 
-        $connection_table = $wpdb->prefix . 'nl_connection';
-        $validation_table = $wpdb->prefix . 'nl_validations';
-        $token_table = $wpdb->prefix . 'nl_tokens';
+        $wpdb->query("DROP TABLE " . DIGIPASS_TABLE_TOKENS . ";");
+        $wpdb->query("DROP TABLE " . DIGIPASS_TABLE_VALIDATIONS . ";");
+        $wpdb->query("DROP TABLE " . DIGIPASS_TABLE_CONNECTIONS . ";");
 
-        $wpdb->query("DROP TABLE " . $token_table . ";");
-        $wpdb->query("DROP TABLE " . $validation_table . ";");
-        $wpdb->query("DROP TABLE " . $connection_table . ";");
-
-        delete_option(self::DP_OPTIONS);
+        delete_option(self::DIGIPASS_OPTIONS);
     }
 
     /**
@@ -350,7 +337,7 @@ class DigiPass extends BaseDigiPass
         wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/dp-public.js', __FILE__), array('jquery'), self::VERSION);
     }
 
-    public function check_page_nl_connection()
+    public function check_page_nlic_connection()
     {
         global $post;
         global $wpdb;
@@ -360,12 +347,11 @@ class DigiPass extends BaseDigiPass
         if ($post->post_type == 'page') {
 
             $admin_email = get_option('admin_email');
-            $username = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'username');
-            $password = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'password');
+            $username = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'username');
+            $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
             //check if exist nl connection with page
-            $connection_table_name = $wpdb->prefix . 'nl_connection';
-            $connection_with_nl = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $connection_table_name . " WHERE post_ID = %d  LIMIT 0, 1;", $post->ID));
+            $connection_with_nl = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . DIGIPASS_TABLE_CONNECTIONS . " WHERE post_ID = %d  LIMIT 0, 1;", $post->ID));
 
             if (!empty($connection_with_nl)) {
                 if (!is_user_logged_in()) {
@@ -381,12 +367,10 @@ class DigiPass extends BaseDigiPass
                     if (!in_array('administrator', $current_user->roles)) {
 
                         //get user hash
-                        $salt = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'salt');
-                        $licensee_number = hash('sha1', $salt . $current_user->user_login);
+                        $licensee_number = hash('sha1', DIGIPASS_SALT . $current_user->user_login);
 
                         //check db validation
-                        $validation_table_name = $wpdb->prefix . 'nl_validations';
-                        $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $validation_table_name . " WHERE c_ID = %d AND licensee_number = %s LIMIT 0, 1;", $connection_with_nl->ID, $licensee_number));
+                        $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . DIGIPASS_TABLE_VALIDATIONS . " WHERE c_ID = %d AND licensee_number = %s LIMIT 0, 1;", $connection_with_nl->ID, $licensee_number));
 
                         $validate_state = FALSE;
 
@@ -394,7 +378,7 @@ class DigiPass extends BaseDigiPass
                             if ($record->ttl > time()) {
                                 $validate_state = TRUE;
                             } else {
-                                $wpdb->query($wpdb->prepare("DELETE FROM " . $validation_table_name . " WHERE post_ID = %d  AND licensee_number = %s;", $post->ID, $licensee_number));
+                                $wpdb->query($wpdb->prepare("DELETE FROM " . DIGIPASS_TABLE_VALIDATIONS . " WHERE post_ID = %d  AND licensee_number = %s;", $post->ID, $licensee_number));
                             }
                         }
 
@@ -402,22 +386,22 @@ class DigiPass extends BaseDigiPass
 
                             try {
                                 //set connection params
-                                $nl_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NL_BASE_URL);
-                                $nl_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
-                                $nl_connect->setUserName($username);
-                                $nl_connect->setPassword($password);
+                                $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+                                $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
+                                $nlic_connect->setUserName($username);
+                                $nlic_connect->setPassword($password);
 
-                                $licensee_service = new \NetLicensing\LicenseeService($nl_connect);
+                                $licensee_service = new \NetLicensing\LicenseeService($nlic_connect);
                                 $validation = $licensee_service->validate($licensee_number, $connection_with_nl->product_number, $current_user->user_login);
 
                                 if ($validation) {
                                     foreach ($validation as $data) {
                                         if ($data['productModuleNumber'] == $connection_with_nl->product_module_number && $data['valid']) {
-                                            $last_response = $nl_connect->getLastResponse();
+                                            $last_response = $nlic_connect->getLastResponse();
                                             $xml = simplexml_load_string($last_response->body);
                                             $ttl = (string)$xml['ttl'];
                                             //save to db
-                                            $wpdb->insert($validation_table_name, array(
+                                            $wpdb->insert(DIGIPASS_TABLE_VALIDATIONS, array(
                                                 'c_ID' => $connection_with_nl->ID,
                                                 'u_ID' => $current_user->ID,
                                                 'licensee_number' => $licensee_number,
@@ -432,25 +416,24 @@ class DigiPass extends BaseDigiPass
                                     $shop_url = '';
 
                                     //check db token
-                                    $tokens_table = $wpdb->prefix . 'nl_tokens';
-                                    $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $tokens_table . " WHERE  licensee_number = %s LIMIT 0, 1;", $licensee_number));
+                                    $record = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . DIGIPASS_TABLE_TOKENS . " WHERE  licensee_number = %s LIMIT 0, 1;", $licensee_number));
 
                                     if ($record) {
                                         if ($record->expiration > time()) {
                                             $shop_url = $record->shop_url;
                                         } else {
-                                            $wpdb->query($wpdb->prepare("DELETE FROM " . $tokens_table . " WHERE licensee_number = %s ;", $licensee_number));
+                                            $wpdb->query($wpdb->prepare("DELETE FROM " . DIGIPASS_TABLE_TOKENS . " WHERE licensee_number = %s ;", $licensee_number));
                                         }
 
                                     }
 
                                     if (empty($shop_url)) {
                                         //create new token
-                                        $token_service = new \NetLicensing\TokenService($nl_connect);
+                                        $token_service = new \NetLicensing\TokenService($nlic_connect);
                                         $token = $token_service->create('SHOP', $licensee_number);
 
                                         //save to db
-                                        $wpdb->insert($tokens_table, array(
+                                        $wpdb->insert(DIGIPASS_TABLE_TOKENS, array(
                                             'number' => $token->getNumber(),
                                             'u_ID' => $current_user->ID,
                                             'licensee_number' => $token->getLicenseeNumber(),
@@ -530,23 +513,22 @@ class DigiPass extends BaseDigiPass
         switch ($column_name) {
             case 'licensee_number' :
                 //get user hash
-                $salt = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'salt');
-                $licensee_number = hash('sha1', $salt . $user->user_login);
+                $licensee_number = hash('sha1', DIGIPASS_SALT . $user->user_login);
                 return $licensee_number;
                 break;
             default:
         }
     }
 
-    public function cron(){
+    public function cron()
+    {
         global $wpdb;
 
         //delete validations
-        $validation_table_name = $wpdb->prefix . 'nl_validations';
-        $wpdb->query($wpdb->prepare("DELETE FROM " . $validation_table_name . " WHERE ttl < %d;", time()));
+        $wpdb->query($wpdb->prepare("DELETE FROM " . DIGIPASS_TABLE_VALIDATIONS . " WHERE ttl < %d;", time()));
 
         //delete tokens
-        $tokens_table = $wpdb->prefix . 'nl_tokens';
-        $wpdb->query($wpdb->prepare("DELETE FROM " . $tokens_table . " WHERE expiration < %d;", time()));
+        $wpdb->query($wpdb->prepare("DELETE FROM " . DIGIPASS_TABLE_TOKENS . " WHERE expiration < %d;", time()));
     }
+
 }

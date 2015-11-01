@@ -7,7 +7,7 @@
  * @author    Labs64 <info@labs64.com>
  * @license   GPL-2.0+
  * @link      http://www.labs64.com
- * @copyright 2014 Labs64
+ * @copyright 2015 Labs64
  */
 class DigiPass_Admin extends BaseDigiPass
 {
@@ -55,7 +55,7 @@ class DigiPass_Admin extends BaseDigiPass
         add_action('save_post', array($this, 'save_product_module_meta_box_data'), 10, 2);
 
         //Truncate tables data if username is updated
-        add_action('update_option_' . self::DP_OPTIONS, array($this, 'update_options_alter'), 10, 2);
+        add_action('update_option_' . self::DIGIPASS_OPTIONS, array($this, 'update_options_alter'), 10, 2);
     }
 
     //if this is singleton, set clone to private
@@ -146,7 +146,7 @@ class DigiPass_Admin extends BaseDigiPass
             <form method="post" action="options.php">
                 <?php
                 // This prints out all hidden setting fields
-                settings_fields('DP_OPTIONS_GROUP');
+                settings_fields('DIGIPASS_OPTIONS_GROUP');
                 $this->dp_settings_fields_hidden();
                 do_settings_sections($this->plugin_slug);
                 submit_button();
@@ -234,52 +234,39 @@ class DigiPass_Admin extends BaseDigiPass
         global $wpdb;
 
         register_setting(
-            'DP_OPTIONS_GROUP',
-            self::DP_OPTIONS,
+            'DIGIPASS_OPTIONS_GROUP',
+            self::DIGIPASS_OPTIONS,
             array($this, 'dp_sanitize_fields')
         );
 
         add_settings_section(
-            'DP_COMMON_SETTINGS',
+            'DIGIPASS_COMMON_SETTINGS',
             __('DigiPass Settings', $this->plugin_slug),
             array($this, 'dp_print_common_section_info'),
             $this->plugin_slug
         );
 
         add_settings_field(
-            self::DP_OPTION_PREFIX . 'apikey',
-            __('NetLicensing APIKey', $this->plugin_slug),
-            array($this, 'dp_text_field_callback'),
-            $this->plugin_slug,
-            'DP_COMMON_SETTINGS',
-            array(
-                'id' => self::DP_OPTION_PREFIX . 'apikey',
-                'description' => __('To use the NetLicensing you need to have an APIKey. See <a href="https://www.labs64.de/confluence/x/pwCo#NetLicensingAPI(RESTful)-APIKeyIdentification" target="_blank">here</a> for more details.', $this->plugin_slug),
-                'required' => TRUE
-            )
-        );
-
-        add_settings_field(
-            self::DP_OPTION_PREFIX . 'username',
+            self::DIGIPASS_OPTION_PREFIX . 'username',
             __('NetLicensing Username', $this->plugin_slug),
             array($this, 'dp_text_field_callback'),
             $this->plugin_slug,
-            'DP_COMMON_SETTINGS',
+            'DIGIPASS_COMMON_SETTINGS',
             array(
-                'id' => self::DP_OPTION_PREFIX . 'username',
+                'id' => self::DIGIPASS_OPTION_PREFIX . 'username',
                 'description' => __('Enter your NetLicensing username.', $this->plugin_slug),
                 'required' => TRUE
             )
         );
 
         add_settings_field(
-            self::DP_OPTION_PREFIX . 'password',
+            self::DIGIPASS_OPTION_PREFIX . 'password',
             __('NetLicensing Password', $this->plugin_slug),
             array($this, 'dp_password_field_callback'),
             $this->plugin_slug,
-            'DP_COMMON_SETTINGS',
+            'DIGIPASS_COMMON_SETTINGS',
             array(
-                'id' => self::DP_OPTION_PREFIX . 'password',
+                'id' => self::DIGIPASS_OPTION_PREFIX . 'password',
                 'description' => __('Enter your NetLicensing password.', $this->plugin_slug),
                 'required' => TRUE
             )
@@ -290,7 +277,6 @@ class DigiPass_Admin extends BaseDigiPass
      */
     public function dp_settings_fields_hidden()
     {
-        $this->dp_print_settings_field_hidden('dp_option2');
     }
 
     /**
@@ -298,7 +284,7 @@ class DigiPass_Admin extends BaseDigiPass
     public function dp_print_settings_field_hidden($id)
     {
         $value = $this->_dp_get_single_option($id);
-        echo "<input type='hidden' id='$id' name='DP_OPTIONS[$id]' value='$value' />";
+        echo "<input type='hidden' id='$id' name='DIGIPASS_OPTIONS[$id]' value='$value' />";
     }
 
     /**
@@ -309,7 +295,7 @@ class DigiPass_Admin extends BaseDigiPass
         $description = $args['description'];
         $value = $this->_dp_get_single_option($id);
         $required = !empty($args['required']) ? 'required="true"' : '';
-        echo '<input ' . $required . ' type="text" id="' . $id . '"' . ' name="DP_OPTIONS[' . $id . ']" value="' . $value . '" class="regular-text" />';
+        echo '<input ' . $required . ' type="text" id="' . $id . '"' . ' name="DIGIPASS_OPTIONS[' . $id . ']" value="' . $value . '" class="regular-text" />';
         echo '<p class="description">' . $description . '</p>';
     }
 
@@ -322,7 +308,7 @@ class DigiPass_Admin extends BaseDigiPass
         $description = $args['description'];
         $value = $this->_dp_get_single_option($id);
         $required = !empty($args['required']) ? 'required="true"' : '';
-        echo '<input ' . $required . ' type="checkbox" id="' . $id . '" name="DP_OPTIONS[' . $id . ']" value="1" class="code"' . checked(1, $value, false) . '/> ' . $caption;
+        echo '<input ' . $required . ' type="checkbox" id="' . $id . '" name="DIGIPASS_OPTIONS[' . $id . ']" value="1" class="code"' . checked(1, $value, false) . '/> ' . $caption;
         echo '<p class="description">' . $description . '</p>';
     }
 
@@ -334,7 +320,7 @@ class DigiPass_Admin extends BaseDigiPass
         $description = $args['description'];
         $value = $this->_dp_get_single_option($id);
         $required = !empty($args['required']) ? 'required="true"' : '';
-        echo '<input ' . $required . ' type="password" id="' . $id . '"' . ' name="DP_OPTIONS[' . $id . ']" value="' . $value . '" class="regular-text" />';
+        echo '<input ' . $required . ' type="password" id="' . $id . '"' . ' name="DIGIPASS_OPTIONS[' . $id . ']" value="' . $value . '" class="regular-text" />';
         echo '<p class="description">' . $description . '</p>';
     }
 
@@ -354,8 +340,8 @@ class DigiPass_Admin extends BaseDigiPass
     {
         global $wpdb;
 
-        $username = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'username');
-        $password = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'password');
+        $username = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'username');
+        $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
         if (empty($username) || empty($password)) {
             echo __('Set username and password on the <a href="/wp-admin/options-general.php?page=digipass">settings page</a>', $this->plugin_slug);
@@ -364,15 +350,15 @@ class DigiPass_Admin extends BaseDigiPass
 
         //check authorization
         try {
-            $nl_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NL_BASE_URL);
-            $nl_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
-            $nl_connect->setUserName($username);
-            $nl_connect->setPassword($password);
+            $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+            $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
+            $nlic_connect->setUserName($username);
+            $nlic_connect->setPassword($password);
 
-            $product_modules = \NetLicensing\ProductModuleService::connect($nl_connect)->getList();
+            $product_modules = \NetLicensing\ProductModuleService::connect($nlic_connect)->getList();
         } catch (\NetLicensing\NetLicensingException $e) {
             if ($e->getCode() == '401') {
-                echo __('Authorization error. Check user name and password on the <a href="/wp-admin/options-general.php?page=digipass">settings page</a>', $this->plugin_slug);
+                echo __('<span style="color: red;">Authorization error</span><br/><br/>Check username and password on the DigiPass <a href="/wp-admin/options-general.php?page=digipass">settings page</a>', $this->plugin_slug);
                 return FALSE;
             } else {
                 echo $e->getMessage();
@@ -381,7 +367,9 @@ class DigiPass_Admin extends BaseDigiPass
         }
         /** @var  $product_module \NetLicensing\ProductModule */
         if (!empty($product_modules)) {
-            $allowed_licensing_model = array('TryAndBuy', 'Subscription');
+            // NOTE: AAV: TryAndBuy will be enabled with the one of the next stable releases
+            // $allowed_licensing_model = array('TryAndBuy', 'Subscription');
+            $allowed_licensing_model = array('Subscription');
             foreach ($product_modules as $key => $product_module) {
                 $product_module_lm = $product_module->getLicensingModel();
                 if (!in_array($product_module_lm, $allowed_licensing_model) || !$product_module->getActive()) {
@@ -395,8 +383,7 @@ class DigiPass_Admin extends BaseDigiPass
             return FALSE;
         }
 
-        $table_name = $wpdb->prefix . 'nl_connection';
-        $record = $wpdb->get_row($wpdb->prepare("SELECT product_module_number FROM " . $table_name . " WHERE post_ID = %d LIMIT 0, 1;", $page->ID));
+        $record = $wpdb->get_row($wpdb->prepare("SELECT product_module_number FROM " . DIGIPASS_TABLE_CONNECTIONS . " WHERE post_ID = %d LIMIT 0, 1;", $page->ID));
         $db_product_module_number = (!empty($record->product_module_number)) ? $record->product_module_number : '';
 
         $options = '<option value="_none">' . __('None') . '</option>';
@@ -404,9 +391,10 @@ class DigiPass_Admin extends BaseDigiPass
         /** @var  $product_module \NetLicensing\ProductModule */
         foreach ($product_modules as $product_module) {
             $product_module_number = $product_module->getNumber();
+            $product_module_name = $product_module->getName();
             $selected = ($db_product_module_number == $product_module_number) ? 'selected' : '';
 
-            $options .= '<option ' . $selected . ' value="' . $product_module_number . '">' . $product_module_number . '</option>';
+            $options .= '<option ' . $selected . ' value="' . $product_module_number . '">' . $product_module_name . ' (' . $product_module_number . ')' . '</option>';
         }
 
         echo '<p>' . __('Product Modules') . '</p>
@@ -417,11 +405,11 @@ class DigiPass_Admin extends BaseDigiPass
     {
         global $wpdb;
 
-        //if username changed truncate all data
-        if ($old_option[self::DP_OPTION_PREFIX . 'username'] != $new_option[self::DP_OPTION_PREFIX . 'username']) {
-            $wpdb->query('TRUNCATE TABLE ' . $wpdb->prefix . 'nl_connection`');
-            $wpdb->query('TRUNCATE TABLE ' . $wpdb->prefix . 'nl_validations`');
-            $wpdb->query('TRUNCATE TABLE ' . $wpdb->prefix . 'nl_tokens`');
+        // if username changed truncate all data
+        if ($old_option[self::DIGIPASS_OPTION_PREFIX . 'username'] != $new_option[self::DIGIPASS_OPTION_PREFIX . 'username']) {
+            $wpdb->query('TRUNCATE TABLE ' . DIGIPASS_TABLE_CONNECTIONS);
+            $wpdb->query('TRUNCATE TABLE ' . DIGIPASS_TABLE_VALIDATIONS);
+            $wpdb->query('TRUNCATE TABLE ' . DIGIPASS_TABLE_TOKENS);
         }
     }
 
@@ -437,9 +425,7 @@ class DigiPass_Admin extends BaseDigiPass
             if (empty($product_module_number) || $product_module_number == '_none') {
                 $this->delete_product_module_meta_box_data($post_ID);
             } else {
-
-                $table_name = $wpdb->prefix . 'nl_connection';
-                $record = $wpdb->get_row($wpdb->prepare("SELECT post_ID FROM " . $table_name . " WHERE post_ID = %d  LIMIT 0, 1;", $post_ID));
+                $record = $wpdb->get_row($wpdb->prepare("SELECT post_ID FROM " . DIGIPASS_TABLE_CONNECTIONS . " WHERE post_ID = %d  LIMIT 0, 1;", $post_ID));
 
                 if (empty($record)) {
                     $this->create_product_module_meta_box_data($post_ID, $product_module_number);
@@ -454,29 +440,26 @@ class DigiPass_Admin extends BaseDigiPass
     {
         global $wpdb;
 
-        $table_name = $wpdb->prefix . 'nl_connection';
-
-        return $wpdb->query($wpdb->prepare("DELETE FROM " . $table_name . " WHERE post_ID = %d ;", $post_ID));
+        return $wpdb->query($wpdb->prepare("DELETE FROM " . DIGIPASS_TABLE_CONNECTIONS . " WHERE post_ID = %d ;", $post_ID));
     }
 
     public function create_product_module_meta_box_data($post_ID, $product_module_number)
     {
         global $wpdb;
 
-        $username = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'username');
-        $password = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'password');
+        $username = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'username');
+        $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
-        $nl_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NL_BASE_URL);
-        $nl_connect->setUserName($username);
-        $nl_connect->setPassword($password);
-        $product_module = \NetLicensing\ProductModuleService::connect($nl_connect)->get($product_module_number);
+        $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+        $nlic_connect->setUserName($username);
+        $nlic_connect->setPassword($password);
+        $product_module = \NetLicensing\ProductModuleService::connect($nlic_connect)->get($product_module_number);
 
         if (empty($product_module)) {
             throw new DigiPass_AdminExtension('Failed to save a product module number.');
         }
-        $table_name = $wpdb->prefix . 'nl_connection';
 
-        return $wpdb->insert($table_name, array(
+        return $wpdb->insert(DIGIPASS_TABLE_CONNECTIONS, array(
             'post_ID' => $post_ID,
             'product_number' => $product_module->getProductNumber(),
             'product_module_number' => $product_module->getNumber(),
@@ -487,21 +470,20 @@ class DigiPass_Admin extends BaseDigiPass
     {
         global $wpdb;
 
-        $username = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'username');
-        $password = $this->_dp_get_single_option(self::DP_OPTION_PREFIX . 'password');
+        $username = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'username');
+        $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
-        $nl_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NL_BASE_URL);
-        $nl_connect->setUserName($username);
-        $nl_connect->setPassword($password);
+        $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+        $nlic_connect->setUserName($username);
+        $nlic_connect->setPassword($password);
 
-        $product_module = \NetLicensing\ProductModuleService::connect($nl_connect)->get($product_module_number);
+        $product_module = \NetLicensing\ProductModuleService::connect($nlic_connect)->get($product_module_number);
 
         if (empty($product_module)) {
             throw new DigiPass_AdminExtension('Failed to update the product module number.');
         }
-        $table_name = $wpdb->prefix . 'nl_connection';
 
-        return $wpdb->update($table_name, array(
+        return $wpdb->update(DIGIPASS_TABLE_CONNECTIONS, array(
             'post_ID' => $post_ID,
             'product_number' => $product_module->getProductNumber(),
             'product_module_number' => $product_module->getNumber(),

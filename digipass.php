@@ -18,7 +18,7 @@
  * @author    Labs64 <info@labs64.com>
  * @license   GPL-2.0+
  * @link      http://www.labs64.com
- * @copyright 2014 Labs64
+ * @copyright 2015 Labs64
  */
 
 // If this file is called directly, abort.
@@ -27,7 +27,6 @@ if (!defined('WPINC')) {
 }
 
 define('DIGIPASS_DIR', plugin_dir_path(__FILE__));
-define('DIGIPASS_NL_BASE_URL', 'https://netlicensing.labs64.com/core/v2/rest');
 
 // main
 require_once(DIGIPASS_DIR . 'public/digipass-class-base.php');

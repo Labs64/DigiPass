@@ -1,4 +1,4 @@
-# Copyright (C) 2014 Labs64
+# Copyright (C) 2015 Labs64
 # This file is distributed under the same license as the DigiPass package.
 msgid ""
 msgstr ""
