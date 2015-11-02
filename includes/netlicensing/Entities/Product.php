@@ -34,7 +34,7 @@ class Product extends BaseEntity
 
     public function getActive()
     {
-        return ($this->_getProperty('active'));
+        return ($this->_getProperty('active') == 'true') ? TRUE : FALSE;
     }
 
     public function setName($name, $refresh = FALSE)

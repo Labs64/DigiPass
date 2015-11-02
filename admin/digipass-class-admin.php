@@ -379,7 +379,9 @@ class DigiPass_Admin extends BaseDigiPass
         }
 
         if (empty($product_modules)) {
-            echo __('Create at least one product module using <i>Try & Buy</i> or <i>Subscription</i> Licensing Model at NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
+            // NOTE: AAV: TryAndBuy will be enabled with the one of the next stable releases
+//            echo __('Create at least one product module using <i>Try & Buy</i> or <i>Subscription</i> Licensing Model at NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
+           echo __('Create at least one product module using <i>Subscription</i> Licensing Model at NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
             return FALSE;
         }
 
@@ -390,12 +392,14 @@ class DigiPass_Admin extends BaseDigiPass
 
         /** @var  $product_module \NetLicensing\ProductModule */
         foreach ($product_modules as $product_module) {
-            $product_module_number = $product_module->getNumber();
-            $product_module_name = $product_module->getName();
-            $selected = ($db_product_module_number == $product_module_number) ? 'selected' : '';
+            if($product_module->getActive()){
+                $product_module_number = $product_module->getNumber();
+                $product_module_name = $product_module->getName();
+                $selected = ($db_product_module_number == $product_module_number) ? 'selected' : '';
 
-            $options .= '<option ' . $selected . ' value="' . $product_module_number . '">' . $product_module_name . ' (' . $product_module_number . ')' . '</option>';
-        }
+                $options .= '<option ' . $selected . ' value="' . $product_module_number . '">' . $product_module_name . ' (' . $product_module_number . ')' . '</option>';
+            }
+         }
 
         echo '<p>' . __('Select content licensing model') . '</p>
         <p><select name="dp_product_module">' . $options . '</select></p>';
