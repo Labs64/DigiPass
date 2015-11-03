@@ -1,0 +1,6 @@
+
+.mce-content-body img[data-digipass="digipass"] {
+    background: transparent url("../../../assets/digipass.png") repeat-y scroll center center;
+    height: 16px;
+    width: 96%;
+}

@@ -30,11 +30,17 @@ class TokenService extends BaseEntityService
         return $this->_get($number, $this->nlic_connect);
     }
 
-    public function create($token_type = 'DEFAULT', $licensee_number = '')
+    public function create($token_type = 'DEFAULT', $licensee_number = '', $custom_properties = array())
     {
         $token_type = strtoupper($token_type);
         if ($token_type != 'DEFAULT' && $token_type != 'SHOP') {
             throw new NetLicensingException('Wrong token type, expected DEFAULT or SHOP, given ' . $token_type);
+        }
+
+        if ($custom_properties) {
+            foreach ($custom_properties as $name => $value) {
+                $params[$name] = $value;
+            }
         }
 
         $params['tokenType'] = $token_type;

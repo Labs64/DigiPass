@@ -20,6 +20,8 @@ abstract class BaseDigiPass
     const DIGIPASS_OPTIONS = 'DIGIPASS_OPTIONS';
     const DIGIPASS_OPTION_PREFIX = 'DIGIPASS_OPTION_';
 
+    protected $plugin_slug = 'digipass';
+
     /**
      * Returns default options.
      * If you override the options here, be careful to use escape characters!
@@ -80,6 +82,11 @@ abstract class BaseDigiPass
         }
 
         return $input;
+    }
+
+    public static function dp_get_default_licensee_number($user)
+    {
+        return hash('md5', 'digipass' . $user->user_login);
     }
 
 }

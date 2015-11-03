@@ -48,7 +48,7 @@ class DigiPass_Admin extends BaseDigiPass
         // Add the options page and menu item.
         add_action('admin_init', array($this, 'admin_page_init'));
 
-        //Add meta boxes to pages content type
+        //Add meta boxes to pages and posts content type
         add_action('add_meta_boxes', array($this, 'add_product_module_meta_box'));
 
         //Save product number
@@ -56,6 +56,20 @@ class DigiPass_Admin extends BaseDigiPass
 
         //Truncate tables data if username is updated
         add_action('update_option_' . self::DIGIPASS_OPTIONS, array($this, 'update_options_alter'), 10, 2);
+
+        // add new digipass quicktag button
+        add_filter('mce_buttons', array($this, 'digipass_register_buttons'));
+        add_filter('mce_external_plugins', array($this, 'digipass_add_buttons'));
+
+        //add user licensee number meta
+        add_action('show_user_profile', array($this, 'user_licensee_number_field'));
+        add_action('edit_user_profile', array($this, 'user_licensee_number_field'));
+        add_action('personal_options_update', array($this, 'save_user_licensee_number_field'));
+        add_action('edit_user_profile_update', array($this, 'save_user_licensee_number_field'));
+
+        //add licensee numbers to users list
+        add_filter('manage_users_columns', array($this, 'user_column_licensee_number'));
+        add_filter('manage_users_custom_column', array($this, 'user_column_licensee_number_row'), 10, 3);
     }
 
     //if this is singleton, set clone to private
@@ -95,7 +109,7 @@ class DigiPass_Admin extends BaseDigiPass
         if ($this->plugin_screen_hook_suffix == $screen->id) {
             wp_enqueue_style($this->plugin_slug . '-admin-styles', plugins_url('assets/css/dp-admin.css', __FILE__), array(), DigiPass::VERSION);
         }
-
+        add_editor_style(plugins_url('assets/css/dp-tinymce-quicktags.css', __FILE__));
     }
 
     /**
@@ -114,7 +128,8 @@ class DigiPass_Admin extends BaseDigiPass
         if ($this->plugin_screen_hook_suffix == $screen->id) {
             wp_enqueue_script($this->plugin_slug . '-admin-script', plugins_url('assets/js/dp-admin.js', __FILE__), array('jquery'), DigiPass::VERSION);
         }
-
+        //add digipass quicktag
+        wp_enqueue_script($this->plugin_slug . '-admin-script', plugins_url('assets/js/dp-quicktags.js', __FILE__), array('jquery'), DigiPass::VERSION);
     }
 
     /**
@@ -162,7 +177,7 @@ class DigiPass_Admin extends BaseDigiPass
             $this->dp_print_feedback_section();
             ?>
         </div>
-    <?php
+        <?php
     }
 
     /**
@@ -172,7 +187,7 @@ class DigiPass_Admin extends BaseDigiPass
     {
         ?>
         <hr/>
-    <?php
+        <?php
     }
 
     /**
@@ -201,7 +216,7 @@ class DigiPass_Admin extends BaseDigiPass
             </li>
             <li><a href="http://www.labs64.com/blog" target="_blank"><?php _e('Read Labs64 Blog'); ?></a></li>
         </ul>
-    <?php
+        <?php
     }
 
     /**
@@ -331,6 +346,7 @@ class DigiPass_Admin extends BaseDigiPass
     public function add_product_module_meta_box()
     {
         add_meta_box('dp-product-module-meta-box', __('DigiPass', $this->plugin_slug), array($this, 'product_module_meta_box'), 'page', 'side', 'low');
+        add_meta_box('dp-product-module-meta-box', __('DigiPass', $this->plugin_slug), array($this, 'product_module_meta_box'), 'post', 'side', 'low');
     }
 
     /**
@@ -381,7 +397,7 @@ class DigiPass_Admin extends BaseDigiPass
         if (empty($product_modules)) {
             // NOTE: AAV: TryAndBuy will be enabled with the one of the next stable releases
 //            echo __('Create at least one product module using <i>Try & Buy</i> or <i>Subscription</i> Licensing Model at NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
-           echo __('Create at least one product module using <i>Subscription</i> Licensing Model at NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
+            echo __('Create at least one product module using <i>Subscription</i> Licensing Model at NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
             return FALSE;
         }
 
@@ -392,14 +408,14 @@ class DigiPass_Admin extends BaseDigiPass
 
         /** @var  $product_module \NetLicensing\ProductModule */
         foreach ($product_modules as $product_module) {
-            if($product_module->getActive()){
+            if ($product_module->getActive()) {
                 $product_module_number = $product_module->getNumber();
                 $product_module_name = $product_module->getName();
                 $selected = ($db_product_module_number == $product_module_number) ? 'selected' : '';
 
                 $options .= '<option ' . $selected . ' value="' . $product_module_number . '">' . $product_module_name . ' (' . $product_module_number . ')' . '</option>';
             }
-         }
+        }
 
         echo '<p>' . __('Select content licensing model') . '</p>
         <p><select name="dp_product_module">' . $options . '</select></p>';
@@ -493,6 +509,69 @@ class DigiPass_Admin extends BaseDigiPass
             'product_module_number' => $product_module->getNumber(),
         ), array('post_ID' => $post_ID), array('%d', '%s', '%s'), array('%d'));
 
+    }
+
+    public function digipass_register_buttons($buttons)
+    {
+        array_push($buttons, 'digipass');
+        return $buttons;
+    }
+
+    public function digipass_add_buttons($plugin_array)
+    {
+        $plugin_array['digipass'] = plugins_url('assets/js/dp-tinymce-quicktags.js', __FILE__);
+        return $plugin_array;
+    }
+
+    public function user_licensee_number_field($user)
+    {
+        $field = self::DIGIPASS_OPTION_PREFIX . 'licensee_number';
+
+        $value = get_user_meta($user->ID, $field, TRUE);
+        $value = ($value) ? $value : self::dp_get_default_licensee_number($user);
+
+        $form = '<h3>' . __('Licensee Number') . '</h3>
+	            <table class="form-table">
+                    <tr>
+                        <th><label for="twitter">' . __('Licensee Number') . '</label></th>
+                        <td>
+                            <input type="text" name="' . $field . '" id="' . $field . '" value="' . $value . '" class="regular-text" /><br />
+                            <span class="description">' . __('Please enter your Licensee Number') . '</span>
+                        </td>
+                    </tr>
+	            </table>';
+
+        print $form;
+    }
+
+    public function save_user_licensee_number_field($user_id)
+    {
+        if (!current_user_can('edit_user', $user_id))
+            return false;
+
+        $field = self::DIGIPASS_OPTION_PREFIX . 'licensee_number';
+        update_user_meta($user_id, $field, $_POST[$field]);
+    }
+
+    public function user_column_licensee_number($column)
+    {
+        $column['licensee_number'] = __('DigiPass Licensee Number');
+        return $column;
+    }
+
+    public function user_column_licensee_number_row($val, $column_name, $user_id)
+    {
+        $field = self::DIGIPASS_OPTION_PREFIX . 'licensee_number';
+        $licensee_number = get_user_meta($user_id, $field, TRUE);
+
+        $licensee_number = ($licensee_number) ? $licensee_number : self::dp_get_default_licensee_number(get_userdata($user_id));
+
+        switch ($column_name) {
+            case 'licensee_number' :
+                return $licensee_number;
+                break;
+            default:
+        }
     }
 }
 
