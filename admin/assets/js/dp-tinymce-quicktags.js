@@ -1,6 +1,7 @@
 (function ($) {
     "use strict";
     $(function () {
+
         tinymce.create('tinymce.plugins.Digipass', {
             init: function (ed, url) {
                 ed.addButton('digipass', {
@@ -10,7 +11,6 @@
                 });
 
                 ed.addCommand('digipass', function () {
-
                     var parent, html, title,
                         classname = 'digipass-tag',
                         dom = ed.dom,

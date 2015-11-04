@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: labs64, shafranov
+Contributors: labs64, shafranov, Rudkovskiy
 Tags: paywall, digital, pass, access-control, content, micropayment, monetize, pay-per-view, payment, PayPal, paywall, premium, content, digital goods, social, subscribe, subscription, license, subscription, ABO, NetLicensing
 Requires at least: 3.5.1
 Tested up to: 4.0

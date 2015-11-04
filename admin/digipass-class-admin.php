@@ -360,7 +360,8 @@ class DigiPass_Admin extends BaseDigiPass
         $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
         if (empty($username) || empty($password)) {
-            echo __('Define username and password on the <a href="/wp-admin/options-general.php?page=digipass">settings page</a>', $this->plugin_slug);
+
+            echo __('Define username and password on the <a href="' . admin_url('options-general.php?page=digipass') . '">settings page</a>', $this->plugin_slug);
             return FALSE;
         }
 
@@ -374,7 +375,7 @@ class DigiPass_Admin extends BaseDigiPass
             $product_modules = \NetLicensing\ProductModuleService::connect($nlic_connect)->getList();
         } catch (\NetLicensing\NetLicensingException $e) {
             if ($e->getCode() == '401') {
-                echo __('<span style="color: red;">Authorization error</span><br/><br/>Check username and password on the DigiPass <a href="/wp-admin/options-general.php?page=digipass">settings page</a>', $this->plugin_slug);
+                echo __('<span style="color: red;">Authorization error</span><br/><br/>Check username and password on the DigiPass <a href="'.  admin_url('options-general.php?page=digipass').'">settings page</a>', $this->plugin_slug);
                 return FALSE;
             } else {
                 echo $e->getMessage();
