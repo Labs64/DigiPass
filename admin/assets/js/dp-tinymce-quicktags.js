@@ -1,13 +1,13 @@
 (function ($) {
     "use strict";
     $(function () {
-
         tinymce.create('tinymce.plugins.Digipass', {
             init: function (ed, url) {
                 ed.addButton('digipass', {
                     title: 'DigiPass',
                     cmd: 'digipass',
-                    image: '/wp-content/plugins/digipass/assets/icon-128x128.png'
+                    icon: false,
+                    text: 'DigiPass'
                 });
 
                 ed.addCommand('digipass', function () {
