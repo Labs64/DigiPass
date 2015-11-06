@@ -167,6 +167,8 @@ class DigiPass_Admin extends BaseDigiPass
         </div>
         <div class="info_menu">
             <?php
+            $this->dp_print_features_section();
+            $this->dp_print_divider();
             $this->dp_print_feedback_section();
             ?>
         </div>
@@ -176,7 +178,7 @@ class DigiPass_Admin extends BaseDigiPass
     /**
      * Print sections divider
      */
-    public function dp_print_divider()
+    function dp_print_divider()
     {
         ?>
         <hr/>
@@ -186,14 +188,28 @@ class DigiPass_Admin extends BaseDigiPass
     /**
      * Print the Common-Section info text
      */
-    public function dp_print_common_section_info()
+    function dp_print_common_section_info()
     {
     }
 
     /**
+     * Print the features section
+     */
+    function dp_print_features_section()
+    {
+        ?>
+        <div style="font-style: italic; color: rgb(102, 102, 102); font-size: smaller;"><p>Powered by <a
+                    href="http://netlicensing.io"
+                    target="_blank">NetLicensing</a></p>
+        </div>
+    <?php
+    }
+
+
+    /**
      * Print the feedback section
      */
-    public function dp_print_feedback_section()
+    function dp_print_feedback_section()
     {
         ?>
         <h3><?php _e('Feedback', $this->plugin_slug); ?></h3>
@@ -215,8 +231,22 @@ class DigiPass_Admin extends BaseDigiPass
     /**
      * Print the reference section
      */
-    public function dp_print_reference_section()
+    function dp_print_reference_section()
     {
+        ?>
+        <h3><?php _e('Plugin Reference', CREDITTRACKER_SLUG); ?></h3>
+        <h4>Start your monetization in minutes</h4>
+        <ul>
+            <li>- <a href="https://netlicensing.labs64.com/app/v2/content/register.xhtml" target="_blank">Create</a> a
+                NetLicensing account in just a few minutes
+            </li>
+            <li>- Configure your <a href="https://netlicensing.labs64.com/app/v2/content/vendor/product.xhtml"
+                                    target="_blank">product</a> for you specific needs
+            </li>
+            <li>- Enter NetLicensing credentials in the <i>'NetLicensing Connect'</i> section</li>
+            <li>- While creating a new post or page select licensing model in the DigiPass meta box</li>
+        </ul>
+    <?php
     }
 
     /**
