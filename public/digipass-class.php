@@ -11,21 +11,6 @@ class DigiPass extends BaseDigiPass
 {
 
     /**
-     * Plugin version, used for cache-busting of style and script file references.
-     */
-    const VERSION = '0.1.0';
-
-    /**
-     * Unique identifier for your plugin.
-     *
-     *
-     * The variable name is used as the text domain when internationalizing strings
-     * of text. Its value should match the Text Domain file header in the main
-     * plugin file.
-     */
-    protected $plugin_slug = 'digipass';
-
-    /**
      * Instance of this class.
      */
     protected static $instance = null;
@@ -50,16 +35,6 @@ class DigiPass extends BaseDigiPass
 
         //Validate pages and posts
         add_filter('the_content', array($this, 'validate_content'), -1000);
-    }
-
-    /**
-     * Return the plugin slug.
-     *
-     * @return    Plugin slug variable.
-     */
-    public function get_plugin_slug()
-    {
-        return $this->plugin_slug;
     }
 
     /**
@@ -481,7 +456,7 @@ class DigiPass extends BaseDigiPass
                         throw new \NetLicensing\NetLicensingException('Shop URL is empty');
                     }
 
-                    $message_template = __('You do not have access to the content of this page. To access, go to the %s and purchase a license.');
+                    $message_template = __('You do not have access to the content of this page. To access, go to the %s and obtain a license.');
                     $shop_link = '<a href="' . $shop_url . '" target="_blank">' . __('NetLicensing Shop', $this->plugin_slug) . '</a>';
                     $message = sprintf($message_template, $shop_link);
 

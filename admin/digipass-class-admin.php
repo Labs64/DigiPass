@@ -27,13 +27,6 @@ class DigiPass_Admin extends BaseDigiPass
      */
     private function __construct()
     {
-
-        /*
-         * Call $plugin_slug from public plugin class.
-         */
-        $plugin = DigiPass::get_instance();
-        $this->plugin_slug = $plugin->get_plugin_slug();
-
         // Load admin style sheet and JavaScript.
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
@@ -107,7 +100,7 @@ class DigiPass_Admin extends BaseDigiPass
 
         $screen = get_current_screen();
         if ($this->plugin_screen_hook_suffix == $screen->id) {
-            wp_enqueue_style($this->plugin_slug . '-admin-styles', plugins_url('assets/css/dp-admin.css', __FILE__), array(), DigiPass::VERSION);
+            wp_enqueue_style($this->plugin_slug . '-admin-styles', plugins_url('assets/css/dp-admin.css', __FILE__), array(), self::VERSION);
         }
         add_editor_style(plugins_url('assets/css/dp-tinymce-quicktags.css', __FILE__));
     }
@@ -126,10 +119,10 @@ class DigiPass_Admin extends BaseDigiPass
 
         $screen = get_current_screen();
         if ($this->plugin_screen_hook_suffix == $screen->id) {
-            wp_enqueue_script($this->plugin_slug . '-admin-script', plugins_url('assets/js/dp-admin.js', __FILE__), array('jquery'), DigiPass::VERSION);
+            wp_enqueue_script($this->plugin_slug . '-admin-script', plugins_url('assets/js/dp-admin.js', __FILE__), array('jquery'), self::VERSION);
         }
         //add digipass quicktag
-        wp_enqueue_script($this->plugin_slug . '-admin-script', plugins_url('assets/js/dp-quicktags.js', __FILE__), array('jquery'), DigiPass::VERSION);
+        wp_enqueue_script($this->plugin_slug . '-admin-script', plugins_url('assets/js/dp-quicktags.js', __FILE__), array('jquery'), self::VERSION);
     }
 
     /**
@@ -177,7 +170,7 @@ class DigiPass_Admin extends BaseDigiPass
             $this->dp_print_feedback_section();
             ?>
         </div>
-        <?php
+    <?php
     }
 
     /**
@@ -187,7 +180,7 @@ class DigiPass_Admin extends BaseDigiPass
     {
         ?>
         <hr/>
-        <?php
+    <?php
     }
 
     /**
@@ -216,7 +209,7 @@ class DigiPass_Admin extends BaseDigiPass
             </li>
             <li><a href="http://www.labs64.com/blog" target="_blank"><?php _e('Read Labs64 Blog'); ?></a></li>
         </ul>
-        <?php
+    <?php
     }
 
     /**
@@ -256,7 +249,7 @@ class DigiPass_Admin extends BaseDigiPass
 
         add_settings_section(
             'DIGIPASS_COMMON_SETTINGS',
-            __('DigiPass Settings', $this->plugin_slug),
+            __('NetLicensing Connect', $this->plugin_slug),
             array($this, 'dp_print_common_section_info'),
             $this->plugin_slug
         );
@@ -361,7 +354,7 @@ class DigiPass_Admin extends BaseDigiPass
 
         if (empty($username) || empty($password)) {
 
-            echo __('Define username and password on the <a href="' . admin_url('options-general.php?page=digipass') . '">settings page</a>', $this->plugin_slug);
+            echo __('<span style="color: red;">Authorization error</span><br/><br/>Define username and password on the DigiPass <a href="' . admin_url('options-general.php?page=digipass') . '">settings</a> page.', $this->plugin_slug);
             return FALSE;
         }
 
@@ -375,7 +368,7 @@ class DigiPass_Admin extends BaseDigiPass
             $product_modules = \NetLicensing\ProductModuleService::connect($nlic_connect)->getList();
         } catch (\NetLicensing\NetLicensingException $e) {
             if ($e->getCode() == '401') {
-                echo __('<span style="color: red;">Authorization error</span><br/><br/>Check username and password on the DigiPass <a href="'.  admin_url('options-general.php?page=digipass').'">settings page</a>', $this->plugin_slug);
+                echo __('<span style="color: red;">Authorization error</span><br/><br/>Check username and password on the DigiPass <a href="' . admin_url('options-general.php?page=digipass') . '">settings</a> page.', $this->plugin_slug);
                 return FALSE;
             } else {
                 echo $e->getMessage();
@@ -418,8 +411,9 @@ class DigiPass_Admin extends BaseDigiPass
             }
         }
 
-        echo '<p>' . __('Select content licensing model') . '</p>
-        <p><select name="dp_product_module">' . $options . '</select></p>';
+        echo '<p>' . __('Protect this page. Select licensing model:') . '</p>';
+        echo '<p><select name="dp_product_module">' . $options . '</select></p>';
+        echo '<p>' . __('Do not see the suitable licensing model? Configure NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">product module</a>.') . '</p>';
     }
 
     public function update_options_alter($old_option, $new_option)

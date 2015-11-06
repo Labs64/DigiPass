@@ -17,10 +17,33 @@ define('DIGIPASS_NLIC_BASE_URL', 'https://netlicensing.labs64.com/core/v2/rest')
 
 abstract class BaseDigiPass
 {
+    /**
+     * Plugin version, used for cache-busting of style and script file references.
+     */
+    const VERSION = '0.1.0';
+
     const DIGIPASS_OPTIONS = 'DIGIPASS_OPTIONS';
     const DIGIPASS_OPTION_PREFIX = 'DIGIPASS_OPTION_';
 
+    /**
+     * Unique identifier for your plugin.
+     *
+     *
+     * The variable name is used as the text domain when internationalizing strings
+     * of text. Its value should match the Text Domain file header in the main
+     * plugin file.
+     */
     protected $plugin_slug = 'digipass';
+
+    /**
+     * Return the plugin slug.
+     *
+     * @return    Plugin slug variable.
+     */
+    public function get_plugin_slug()
+    {
+        return $this->plugin_slug;
+    }
 
     /**
      * Returns default options.
