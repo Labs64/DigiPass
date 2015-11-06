@@ -17,7 +17,7 @@
                         node = ed.selection.getNode();
 
 
-                    title = 'DigiPAss...';
+                    title = 'DigiPass...';
                     html = '<img src="' + tinymce.Env.transparentSrc + '" title="' + title + '" class="' + classname + '" data-digipass="digipass"/>';
 
                     parent = dom.getParent(node, function (found) {

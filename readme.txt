@@ -1,25 +1,33 @@
 === Plugin Name ===
-Contributors: labs64, shafranov, Rudkovskiy
-Tags: paywall, digital, pass, access-control, content, micropayment, monetize, pay-per-view, payment, PayPal, paywall, premium, content, digital goods, social, subscribe, subscription, license, subscription, ABO, NetLicensing
+Contributors: labs64, Rudkovskiy
+Tags: paywall, digital, pass, access-control, content, micropayment, monetize, pay-per-view, payment, PayPal, premium, content, digital goods, social, subscribe, subscription, license, subscription, ABO, NetLicensing
 Requires at least: 3.5.1
-Tested up to: 4.0
+Tested up to: 4.3.1
 Stable tag: 0.1.0
 License: GPL-2.0+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-DigiPass is the best way for publishers and bloggers to monetize their content.
+DigiPass is the best way for publishers and bloggers to monetize their digital content.
 
 == Description ==
 
-*TODO* ...
+DigiPass makes it easy to sell your digital content (articles or posts) through subscriptions or micropayments.
 
 = Features =
 
-* *TODO* ...
+* Integration based on a simple shortcode <!-- digipass -->.
+* Real-time sales statistics: no cronjob or batch needed.
+* Paid articles: set a price on articles of your choosing. Users will only see an excerpt and have the option to purchase the full article.
+* No programming/scripting experience needed.
+* BitMonet takes less than 10 minutes to set up.
+
+= Pricing (It's FREE - forever FREE) =
+
+Using NetLicensing **"FREE Forever Plan"** you can monetize your digital content with no cost.
 
 = Showcase =
 
-*TODO* ...
+Coming soon...
 
 = Get Involved =
 
@@ -65,7 +73,7 @@ Once you have activated the plugin you can tinker with the settings to your hear
 
 = How do I include a DigiPass on my page? =
 
-*TODO* ...
+Create a FREE NetLicensing account and configure username / password in the plugin's setting page.
 
 = Will DigiPass work with my theme? =
 
@@ -85,15 +93,15 @@ We always welcome your feedback and would love to know what you would like to se
 
 = Where can I report bugs? =
 
-If you have discovered a bug, we want to know so that we can get it fixed as soon as possible! We always work to make sure that the plugin is working fully prior to releasing an update but sometimes problems do arise. All bugs and issues can be reported on the DigiPass's [Issue Tracker](https://github.com/Labs64/DigiPass/issues).
+If you have discovered a bug, we want to know so that we can get it fixed as soon as possible! We always work to make sure that the plugin is working fully prior to releasing an update, but sometimes problems do arise. All bugs and issues can be reported on the DigiPass's [Issue Tracker](https://github.com/Labs64/DigiPass/issues).
 
 = I love DigiPass, it’s awesome! Can I contribute? =
 
-Yes you can! Join in on our [GitHub repository](https://github.com/Labs64/DigiPass) :) You can also leave us a nice review on the WordPress site to let others know what you think of the plugin!
+Yes, you can! Join in on our [GitHub repository](https://github.com/Labs64/DigiPass) :) You can also leave us a nice review on the WordPress site to let others know what you think of the plugin!
 
 == Screenshots ==
 
-1. *TODO* ...
+1. Protect post using DigiPass
 
 == Changelog ==
 
