@@ -63,6 +63,9 @@ class DigiPass_Admin extends BaseDigiPass
         //add licensee numbers to users list
         add_filter('manage_users_columns', array($this, 'user_column_licensee_number'));
         add_filter('manage_users_custom_column', array($this, 'user_column_licensee_number_row'), 10, 3);
+
+        // AJAX callbacks registration
+        add_action('wp_ajax_validate', array($this, 'digipass_validate_callback'));
     }
 
     //if this is singleton, set clone to private
@@ -190,6 +193,77 @@ class DigiPass_Admin extends BaseDigiPass
      */
     function dp_print_common_section_info()
     {
+        echo '<a href="https://netlicensing.labs64.com/app/v2/content/register.xhtml" target="_blank">Sign up</a> for your free NetLicensing vendor account, then fill in the login information in the fields below.';
+        echo '<br/>Using NetLicensing <a href="https://netlicensing.labs64.com/app/v2/?lc=4b566c7e20&source=lmbox001" target="_blank">demo account</a>, you can try out plugin functionality right away (username: <i>demo</i> / password: <i>demo</i>).';
+    }
+
+    /**
+     * Returns available plugin features
+     */
+    function dp_get_features_array()
+    {
+        $features = array(
+            'digipass_feature_protect_page' => __('Protect page / post (FREE)', $this->plugin_slug)
+        );
+        return $features;
+    }
+
+    /**
+     * Get features list.
+     */
+    function dp_print_features_list($features)
+    {
+        $ret = '<ul id="digipass_features">';
+        foreach ($features as $key => $value) {
+            $ret .= '<li id="' . $key . '">&nbsp;' . $value . ' - ' . $this->dp_get_on_off($this->_dp_get_single_option($key)) . '</li>';
+        }
+        $ret .= '</ul>';
+        print $ret;
+    }
+
+    /**
+     * Print the Section info text
+     */
+    function dp_get_on_off($opt)
+    {
+        if ($opt == '1') {
+            return "<span class='label-on'>ON</span>";
+        } else {
+            return "<span class='label-off'>OFF</span>";
+        }
+    }
+
+    /**
+     * Validate allowed features at Labs64 Netlicensing
+     */
+    function digipass_validate_callback()
+    {
+        // validate features
+        $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+        $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::API_KEY_IDENTIFICATION);
+        $nlic_connect->setApiKey(DIGIPASS_NLIC_API_KEY);
+
+        $site_url = dp_strip_url(get_site_url(), 1000);
+
+        $licensee_service = new \NetLicensing\LicenseeService($nlic_connect);
+        $validation = $licensee_service->validate($site_url, 'DP', urlencode($site_url));
+
+        $last_response = $nlic_connect->getLastResponse();
+        $xml = simplexml_load_string($last_response->body);
+
+        // NOTE: no NetLicensing response processing at the moment necessary; only product usage tracking functionality
+
+        // update options
+        $this->_dp_set_single_option('digipass_feature_protect_page', '1');
+
+        // prepare return values
+        $licenses = array(
+            'netlicensing_response' => $xml,
+            'digipass_feature_protect_page' => $this->_dp_get_single_option('digipass_feature_protect_page')
+        );
+        echo json_encode($licenses);
+
+        die(); // this is required to return a proper result
     }
 
     /**
@@ -197,14 +271,22 @@ class DigiPass_Admin extends BaseDigiPass
      */
     function dp_print_features_section()
     {
+        $digipass_feature_protect_page = $this->_dp_get_single_option('digipass_feature_protect_page');
+
         ?>
+        <h3><?php _e('Features', $this->plugin_slug); ?></h3>
+        <p><?php _e('Available plugin features', $this->plugin_slug); ?>:</p>
+
+        <?php $this->dp_print_features_list($this->dp_get_features_array()); ?>
+
+        <button id="digipass-validate" type="button""><?php _e('Validate'); ?></button>
+        <br/>
         <div style="font-style: italic; color: rgb(102, 102, 102); font-size: smaller;"><p>Powered by <a
                     href="http://netlicensing.io"
                     target="_blank">NetLicensing</a></p>
         </div>
     <?php
     }
-
 
     /**
      * Print the feedback section
@@ -234,7 +316,7 @@ class DigiPass_Admin extends BaseDigiPass
     function dp_print_reference_section()
     {
         ?>
-        <h3><?php _e('Plugin Reference', CREDITTRACKER_SLUG); ?></h3>
+        <h3><?php _e('Plugin Reference', $this->plugin_slug); ?></h3>
         <h4>Start your monetization in minutes</h4>
         <ul>
             <li>- <a href="https://netlicensing.labs64.com/app/v2/content/register.xhtml" target="_blank">Create</a> a
@@ -313,13 +395,14 @@ class DigiPass_Admin extends BaseDigiPass
 
     /**
      */
-    public function dp_settings_fields_hidden()
+    function dp_settings_fields_hidden()
     {
+        $this->dp_print_settings_field_hidden('digipass_feature_protect_page');
     }
 
     /**
      */
-    public function dp_print_settings_field_hidden($id)
+    function dp_print_settings_field_hidden($id)
     {
         $value = $this->_dp_get_single_option($id);
         echo "<input type='hidden' id='$id' name='DIGIPASS_OPTIONS[$id]' value='$value' />";

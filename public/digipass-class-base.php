@@ -13,6 +13,7 @@ define('DIGIPASS_TABLE_VALIDATIONS', $wpdb->prefix . 'digipass_validations');
 define('DIGIPASS_TABLE_TOKENS', $wpdb->prefix . 'digipass_tokens');
 
 define('DIGIPASS_NLIC_BASE_URL', 'https://netlicensing.labs64.com/core/v2/rest');
+define('DIGIPASS_NLIC_API_KEY', '31c7bc4e-90ff-44fb-9f07-b88eb06ed9dc');
 
 
 abstract class BaseDigiPass
@@ -20,7 +21,7 @@ abstract class BaseDigiPass
     /**
      * Plugin version, used for cache-busting of style and script file references.
      */
-    const VERSION = '0.1.0';
+    const VERSION = '0.2.0';
 
     const DIGIPASS_OPTIONS = 'DIGIPASS_OPTIONS';
     const DIGIPASS_OPTION_PREFIX = 'DIGIPASS_OPTION_';
@@ -52,6 +53,7 @@ abstract class BaseDigiPass
     protected function _dp_get_default_options()
     {
         $default_options = array(
+            'digipass_feature_protect_page' => '0',
             self::DIGIPASS_OPTION_PREFIX . 'username' => '',
             self::DIGIPASS_OPTION_PREFIX . 'password' => '',
         );
