@@ -12,7 +12,7 @@ echo
 # Get some user input
 # Can't use the -i flag for read, since that doesn't work for bash 3
 
-default_pluginslug="digipass"
+default_pluginslug="DigiPass"
 
 echo "1a) WordPress Repo Plugin Slug."
 read -e -p "Plugin Slug ($default_pluginslug): " input
@@ -65,11 +65,11 @@ GITPATH="$PLUGINDIR/" # this file should be in the base of your git repository
 
 # Let's begin...
 echo ".........................................."
-echo 
+echo
 echo "Preparing to deploy WordPress plugin"
-echo 
+echo
 echo ".........................................."
-echo 
+echo
 
 # Check version in readme.txt is the same as plugin file after translating both to unix line breaks to work around grep's failure to identify mac line breaks
 NEWVERSION1=`grep "^Stable tag:" $GITPATH/readme.txt | awk -F' ' '{print $NF}'`
@@ -83,9 +83,9 @@ echo "Versions match in readme.txt and $MAINFILE. Let's proceed..."
 
 # GaryJ: Ignore check for git tag, as git flow release finish creates this.
 if git show-ref --tags --quiet --verify -- "refs/tags/$NEWVERSION1"
-	then 
-		echo "Version $NEWVERSION1 already exists as git tag. Exiting...."; 
-		exit 1; 
+	then
+		echo "Version $NEWVERSION1 already exists as git tag. Exiting....";
+		exit 1;
 	else
 		echo "Git version does not exist. Let's proceed..."
 fi
@@ -106,7 +106,7 @@ echo "Pushing git master to origin, with tags"
 git push origin master
 git push origin master --tags
 
-echo 
+echo
 echo "Creating local copy of SVN repo ..."
 svn checkout $SVNURL $SVNPATH
 
