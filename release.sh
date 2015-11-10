@@ -13,6 +13,7 @@ echo
 # Can't use the -i flag for read, since that doesn't work for bash 3
 
 default_pluginslug="DigiPass"
+default_pluginslug_lovercase="digipass"
 
 echo "1a) WordPress Repo Plugin Slug."
 read -e -p "Plugin Slug ($default_pluginslug): " input
@@ -22,7 +23,7 @@ echo
 # Set up some default values. Feel free to change these in your own script
 CURRENTDIR=`pwd`
 default_svnpath="$CURRENTDIR/../$PLUGINSLUG-svn"
-default_svnurl="http://plugins.svn.wordpress.org/$PLUGINSLUG"
+default_svnurl="http://plugins.svn.wordpress.org/$default_pluginslug_lovercase"
 default_svnuser="labs64"
 default_plugindir="$CURRENTDIR"
 default_mainfile="$PLUGINSLUG.php"
