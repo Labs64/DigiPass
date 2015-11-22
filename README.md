@@ -19,11 +19,11 @@ The Plugin is designed to be easy-to-use and to fit easily and neatly within the
 
 ## Features
 
-* Integration based on a simple shortcode <!-- digipass -->.
-* Real-time sales statistics: no cronjob or batch needed.
-* Paid articles: set a price on articles of your choosing. Users will only see an excerpt and have the option to purchase the full article.
-* No programming/scripting experience needed.
-* BitMonet takes less than 10 minutes to set up.
+* Integration based on a simple shortcode <!-- digipass -->
+* Real-time sales statistics: no cronjob or batch needed
+* Paid articles: set a price on articles of your choosing; users will only see an excerpt and have the option to purchase the full article
+* No programming/scripting experience needed
+* DigiPass takes less than 10 minutes to set up
 
 ## Documentation
 
