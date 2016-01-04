@@ -1,9 +1,9 @@
 === Plugin Name ===
 Contributors: labs64, Rudkovskiy
-Tags: paywall, digital, pass, access-control, content, micropayment, monetize, pay-per-view, payment, PayPal, premium, content, digital goods, social, subscribe, subscription, license, subscription, ABO, NetLicensing
+Tags: digipass, paywall, digital, pass, access-control, content, micropayment, monetize, pay-per-view, payment, PayPal, premium, content, digital goods, social, subscribe, subscription, license, subscription, ABO, NetLicensing
 Requires at least: 3.5.1
 Tested up to: 4.3.1
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPL-2.0+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,6 +104,9 @@ Yes, you can! Join in on our [GitHub repository](https://github.com/Labs64/DigiP
 1. Protect post using DigiPass
 
 == Changelog ==
+
+= 0.2.1 =
+* Fix QTags resolution
 
 = 0.2.0 =
 * Integrate NetLicensing to validate activated plugin features

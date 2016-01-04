@@ -21,7 +21,7 @@ abstract class BaseDigiPass
     /**
      * Plugin version, used for cache-busting of style and script file references.
      */
-    const VERSION = '0.2.0';
+    const VERSION = '0.2.1';
 
     const DIGIPASS_OPTIONS = 'DIGIPASS_OPTIONS';
     const DIGIPASS_OPTION_PREFIX = 'DIGIPASS_OPTION_';
