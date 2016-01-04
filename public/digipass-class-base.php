@@ -12,7 +12,7 @@ define('DIGIPASS_TABLE_CONNECTIONS', $wpdb->prefix . 'digipass_connections');
 define('DIGIPASS_TABLE_VALIDATIONS', $wpdb->prefix . 'digipass_validations');
 define('DIGIPASS_TABLE_TOKENS', $wpdb->prefix . 'digipass_tokens');
 
-define('DIGIPASS_NLIC_BASE_URL', 'https://netlicensing.labs64.com/core/v2/rest');
+define('DIGIPASS_NLIC_BASE_URL', 'https://go.netlicensing.io/core/v2/rest');
 define('DIGIPASS_NLIC_API_KEY', '31c7bc4e-90ff-44fb-9f07-b88eb06ed9dc');
 
 

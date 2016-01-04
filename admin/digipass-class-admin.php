@@ -193,8 +193,8 @@ class DigiPass_Admin extends BaseDigiPass
      */
     function dp_print_common_section_info()
     {
-        echo '<a href="https://netlicensing.labs64.com/app/v2/content/register.xhtml" target="_blank">Sign up</a> for your free NetLicensing vendor account, then fill in the login information in the fields below.';
-        echo '<br/>Using NetLicensing <a href="https://netlicensing.labs64.com/app/v2/?lc=4b566c7e20&source=lmbox001" target="_blank">demo account</a>, you can try out plugin functionality right away (username: <i>demo</i> / password: <i>demo</i>).';
+        echo '<a href="https://go.netlicensing.io/app/v2/content/register.xhtml" target="_blank">Sign up</a> for your free NetLicensing vendor account, then fill in the login information in the fields below.';
+        echo '<br/>Using NetLicensing <a href="https://go.netlicensing.io/app/v2/?lc=4b566c7e20&source=lmbox001" target="_blank">demo account</a>, you can try out plugin functionality right away (username: <i>demo</i> / password: <i>demo</i>).';
     }
 
     /**
