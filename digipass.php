@@ -6,7 +6,7 @@
  * Description: The best way for publishers and bloggers to monetize their content.
  * Author:      Labs64
  * Author URI:  http://www.labs64.com
- * Version:     0.2.1
+ * Version:     0.3.0
  * Text Domain: digipass
  * Domain Path: /languages
  * License:     GPL-2.0+
