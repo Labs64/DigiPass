@@ -1,0 +1,12 @@
+{
+    "require": {
+        "php":">=5.3.0",
+        "Labs64/NetLicensingClient-php":"*"
+    },
+    "repositories":[
+        {
+            "type":"git",
+            "url":"https://github.com/Labs64/NetLicensingClient-php"
+        }
+    ]
+}
