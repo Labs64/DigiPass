@@ -1,7 +1,7 @@
 {
     "require": {
         "php":">=5.3.0",
-        "Labs64/NetLicensingClient-php":"*"
+        "labs64/netlicensingclient-php":"*"
     },
     "repositories":[
         {
