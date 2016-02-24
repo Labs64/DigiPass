@@ -239,7 +239,7 @@ class DigiPass_Admin extends BaseDigiPass
     function digipass_validate_callback()
     {
         // validate features
-        $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+        $nlic_connect = new \NetLicensing\NetLicensingAPI();
         $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::API_KEY_IDENTIFICATION);
         $nlic_connect->setApiKey(DIGIPASS_NLIC_API_KEY);
 
@@ -473,7 +473,7 @@ class DigiPass_Admin extends BaseDigiPass
 
         //check authorization
         try {
-            $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+            $nlic_connect = new \NetLicensing\NetLicensingAPI();
             $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
             $nlic_connect->setUserName($username);
             $nlic_connect->setPassword($password);
@@ -578,7 +578,7 @@ class DigiPass_Admin extends BaseDigiPass
         $username = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'username');
         $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
-        $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+        $nlic_connect = new \NetLicensing\NetLicensingAPI();
         $nlic_connect->setUserName($username);
         $nlic_connect->setPassword($password);
         $product_module = \NetLicensing\ProductModuleService::connect($nlic_connect)->get($product_module_number);
@@ -601,7 +601,7 @@ class DigiPass_Admin extends BaseDigiPass
         $username = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'username');
         $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
-        $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+        $nlic_connect = new \NetLicensing\NetLicensingAPI();
         $nlic_connect->setUserName($username);
         $nlic_connect->setPassword($password);
 

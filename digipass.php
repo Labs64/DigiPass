@@ -28,13 +28,13 @@ if (!defined('WPINC')) {
 
 define('DIGIPASS_DIR', plugin_dir_path(__FILE__));
 
+//libraries
+require_once (DIGIPASS_DIR.'vendor/autoload.php');
+
 // main
 require_once(DIGIPASS_DIR . 'public/digipass-class-base.php');
 require_once(DIGIPASS_DIR . 'public/digipass-class.php');
 require_once(DIGIPASS_DIR . 'public/digipass-functions.php');
-
-// utils
-require_once(DIGIPASS_DIR . 'includes/netlicensing/netlicensing-load.php');
 
 // Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
 register_activation_hook(__FILE__, array('DigiPass', 'activate'));

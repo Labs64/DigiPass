@@ -388,7 +388,7 @@ class DigiPass extends BaseDigiPass
                 $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
                 //made connection object
-                $nlic_connect = new \NetLicensing\NetLicensingAPI(DIGIPASS_NLIC_BASE_URL);
+                $nlic_connect = new \NetLicensing\NetLicensingAPI();
                 $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
                 $nlic_connect->setUserName($username);
                 $nlic_connect->setPassword($password);
