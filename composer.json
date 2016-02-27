@@ -1,12 +1,28 @@
 {
-    "require": {
-        "php":">=5.3.0",
-        "Labs64/NetLicensingClient-php":"dev-master"
-    },
-    "repositories":[
+    "name": "labs64/digipass",
+    "description": "DigiPass (Paywall) WordPress plugin",
+    "type": "wordpress-plugin",
+    "keywords": [
+        "digipass", "paywall", "access-control", "content", "micropayment", "monetize", "pay-per-view", "payment", "PayPal", "digital goods", "subscribe", "subscription", "ABO", "license", "NetLicensing"
+    ],
+    "homepage": "https://wordpress.org/plugins/digipass/",
+    "license": "GPL-2.0",
+    "authors": [
         {
-            "type":"git",
-            "url":"https://github.com/Labs64/NetLicensingClient-php"
+            "name": "Labs64",
+            "email": "info@labs64.com",
+            "homepage": "http://www.labs64.com"
         }
-    ]
+    ],
+    "support": {
+        "email": "info@labs64.com",
+        "issues": "https://github.com/Labs64/DigiPass/issues",
+        "source": "https://github.com/Labs64/DigiPass",
+        "docs": "https://wordpress.org/plugins/digipass/faq/"
+    },
+    "require": {
+        "php": ">=5.3.2",
+        "Labs64/NetLicensingClient-php": "2.3.1"
+    },
+    "prefer-stable": true
 }

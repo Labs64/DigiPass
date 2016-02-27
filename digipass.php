@@ -12,7 +12,7 @@
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 3.5.1
- * Tested up to: 4.3.1
+ * Tested up to: 4.4.2
  *
  * @package   DigiPass
  * @author    Labs64 <info@labs64.com>
@@ -29,7 +29,7 @@ if (!defined('WPINC')) {
 define('DIGIPASS_DIR', plugin_dir_path(__FILE__));
 
 //libraries
-require_once (DIGIPASS_DIR.'vendor/autoload.php');
+require_once(DIGIPASS_DIR . 'vendor/autoload.php');
 
 // main
 require_once(DIGIPASS_DIR . 'public/digipass-class-base.php');

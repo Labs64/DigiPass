@@ -1,8 +1,8 @@
 === Plugin Name ===
 Contributors: labs64, Rudkovskiy
-Tags: digipass, paywall, digital, pass, access-control, content, micropayment, monetize, pay-per-view, payment, PayPal, premium, content, digital goods, social, subscribe, subscription, license, subscription, ABO, NetLicensing
+Tags: digipass, paywall, access-control, content, micropayment, monetize, pay-per-view, payment, PayPal, digital goods, subscribe, subscription, ABO, license, NetLicensing
 Requires at least: 3.5.1
-Tested up to: 4.3.1
+Tested up to: 4.4.2
 Stable tag: 0.3.0
 License: GPL-2.0+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
