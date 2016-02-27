@@ -106,7 +106,9 @@ Yes, you can! Join in on our [GitHub repository](https://github.com/Labs64/DigiP
 == Changelog ==
 
 = 0.3.0 =
-* *TODO*
+* Use NetLicensing API v2.3.x
+* Fix invalid response messages namespace
+* Use Composer for dependencies
 
 = 0.2.1 =
 * Fix QTags resolution

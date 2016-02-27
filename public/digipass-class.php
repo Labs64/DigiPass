@@ -456,13 +456,12 @@ class DigiPass extends BaseDigiPass
                         throw new \NetLicensing\NetLicensingException('Shop URL is empty');
                     }
 
-                    $message_template = __('You do not have access to the content of this page. To access, go to the %s and obtain a license.');
-                    $shop_link = '<a href="' . $shop_url . '" target="_blank">' . __('NetLicensing Shop', $this->plugin_slug) . '</a>';
+                    $message_template = __('This content is available for purchase. See %s.');
+                    $shop_link = '<a href="' . $shop_url . '" target="_blank">' . __('subscription options', $this->plugin_slug) . '</a>';
                     $message = sprintf($message_template, $shop_link);
 
                     return str_replace($dp_content, $message, $content);
                 }
-
 
             } catch (\NetLicensing\NetLicensingException $e) {
                 $message = __('Error contacting NetLicensing license server. Please contact your site administrator.', $this->plugin_slug);
