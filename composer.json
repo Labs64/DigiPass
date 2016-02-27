@@ -3,7 +3,7 @@
     "description": "DigiPass (Paywall) WordPress plugin",
     "type": "wordpress-plugin",
     "keywords": [
-        "digipass", "paywall", "access-control", "content", "micropayment", "monetize", "pay-per-view", "payment", "PayPal", "digital goods", "subscribe", "subscription", "ABO", "license", "NetLicensing"
+        "wordpress", "digipass", "paywall", "access-control", "content", "micropayment", "monetize", "pay-per-view", "payment", "PayPal", "digital goods", "subscribe", "subscription", "ABO", "license", "NetLicensing"
     ],
     "homepage": "https://wordpress.org/plugins/digipass/",
     "license": "GPL-2.0",
@@ -22,7 +22,7 @@
     },
     "require": {
         "php": ">=5.3.2",
-        "Labs64/NetLicensingClient-php": "2.3.1"
+        "Labs64/NetLicensingClient-php": "2.3.2"
     },
     "prefer-stable": true
 }

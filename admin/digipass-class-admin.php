@@ -319,10 +319,10 @@ class DigiPass_Admin extends BaseDigiPass
         <h3><?php _e('Plugin Reference', $this->plugin_slug); ?></h3>
         <h4>Start your monetization in minutes</h4>
         <ul>
-            <li>- <a href="https://netlicensing.labs64.com/app/v2/content/register.xhtml" target="_blank">Create</a> a
+            <li>- <a href="https://go.netlicensing.io/app/v2/content/register.xhtml" target="_blank">Create</a> a
                 NetLicensing account in just a few minutes
             </li>
-            <li>- Configure your <a href="https://netlicensing.labs64.com/app/v2/content/vendor/product.xhtml"
+            <li>- Configure your <a href="https://go.netlicensing.io/app/v2/content/vendor/product.xhtml"
                                     target="_blank">product</a> for you specific needs
             </li>
             <li>- Enter NetLicensing credentials in the <i>'NetLicensing Connect'</i> section</li>
@@ -503,8 +503,8 @@ class DigiPass_Admin extends BaseDigiPass
 
         if (empty($product_modules)) {
             // NOTE: AAV: TryAndBuy will be enabled with the one of the next stable releases
-//            echo __('Create at least one product module using <i>Try & Buy</i> or <i>Subscription</i> Licensing Model at NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
-            echo __('Create at least one product module using <i>Subscription</i> Licensing Model at NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
+//            echo __('Create at least one product module using <i>Try & Buy</i> or <i>Subscription</i> Licensing Model at NetLicensing <a href="https://go.netlicensing.io/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
+            echo __('Create at least one product module using <i>Subscription</i> Licensing Model at NetLicensing <a href="https://go.netlicensing.io/app/v2/content/vendor/productmodule.xhtml" target="_blank">Product Modules</a> page', $this->plugin_slug);
             return FALSE;
         }
 
@@ -526,7 +526,7 @@ class DigiPass_Admin extends BaseDigiPass
 
         echo '<p>' . __('Protect this page. Select licensing model:') . '</p>';
         echo '<p><select name="dp_product_module">' . $options . '</select></p>';
-        echo '<p>' . __('Do not see the suitable licensing model? Configure NetLicensing <a href="https://netlicensing.labs64.com/app/v2/content/vendor/productmodule.xhtml" target="_blank">product module</a>.') . '</p>';
+        echo '<p>' . __('Do not see the suitable licensing model? Configure NetLicensing <a href="https://go.netlicensing.io/app/v2/content/vendor/productmodule.xhtml" target="_blank">product module</a>.') . '</p>';
     }
 
     public function update_options_alter($old_option, $new_option)

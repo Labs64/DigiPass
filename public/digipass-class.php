@@ -349,7 +349,7 @@ class DigiPass extends BaseDigiPass
 
         //check authorization
         if (!is_user_logged_in()) {
-            $message = __('You are not authorized to access this page.', $this->plugin_slug) . '<a href="' . wp_login_url(get_permalink()) . '" title="' . __('Login', $this->plugin_slug) . '">' . __('Please login', $this->plugin_slug) . '</a>';
+            $message = 'Please' . ' <a href="' . wp_login_url(get_permalink()) . '">login</a> to view this content. Not a member? - <a href="' . wp_registration_url(get_permalink()) . '">Join today</a>!';
             return str_replace($dp_content, $message, $content);
         }
 
