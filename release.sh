@@ -74,11 +74,11 @@ echo
 
 # Check if composer installed
 if [ -f "composer.phar" ]
-  then
-	  echo "composer.phar found. Let's proceed...";
-  else
-		echo "composer.phar not found; please install composer (https://getcomposer.org). Exiting....";
-		exit 1;
+    then
+        echo "composer.phar found. Let's proceed...";
+    else
+        echo "composer.phar not found; please install composer (https://getcomposer.org). Exiting....";
+        exit 1;
 fi
 
 # Check version in readme.txt is the same as plugin file after translating both to unix line breaks to work around grep's failure to identify mac line breaks
@@ -93,11 +93,11 @@ echo "Versions match in readme.txt and $MAINFILE. Let's proceed..."
 
 # GaryJ: Ignore check for git tag, as git flow release finish creates this.
 if git show-ref --tags --quiet --verify -- "refs/tags/$NEWVERSION1"
-	then
-		echo "Version $NEWVERSION1 already exists as git tag. Exiting....";
-		exit 1;
-	else
-		echo "Git version $NEWVERSION1 does not exist. Let's proceed..."
+    then
+        echo "Version $NEWVERSION1 already exists as git tag. Exiting....";
+        exit 1;
+    else
+        echo "Git version $NEWVERSION1 does not exist. Let's proceed..."
 fi
 
 echo "Changing to $GITPATH"
@@ -131,11 +131,11 @@ git checkout-index -a -f --prefix=$SVNPATH/trunk/
 
 # If submodule exist, recursively check out their indexes
 if [ -f ".gitmodules" ]
-	then
-		echo "Exporting the HEAD of each submodule from git to the trunk of SVN"
-		git submodule init
-		git submodule update
-		git submodule foreach --recursive 'git checkout-index -a -f --prefix=$SVNPATH/trunk/$path/'
+    then
+        echo "Exporting the HEAD of each submodule from git to the trunk of SVN"
+        git submodule init
+        git submodule update
+        git submodule foreach --recursive 'git checkout-index -a -f --prefix=$SVNPATH/trunk/$path/'
 fi
 
 ##### # Support for the /assets folder on the .org repo.
@@ -146,7 +146,7 @@ fi
 ##### svn add $SVNPATH/assets/
 ##### svn delete $SVNPATH/trunk/assets
 
-echo "Generating composer dependencies in trunk"
+echo "Generating composer dependencies in $SVNPATH/trunk/"
 php composer.phar --working-dir=$SVNPATH/trunk/ update
 
 echo "Changing directory to SVN and committing to trunk"
