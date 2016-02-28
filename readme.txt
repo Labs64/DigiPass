@@ -23,11 +23,11 @@ DigiPass makes it easy to sell your digital content (articles or posts) through 
 
 = Pricing (It's FREE - forever FREE) =
 
-Using NetLicensing **"FREE Forever Plan"** you can monetize your digital content with no cost.
+Using NetLicensing **[FREE Forever Plan](http://netlicensing.io/pricing/ "NetLicensing pricing plan")** you can monetize your digital content with NO cost.
 
 = Showcase =
 
-Coming soon...
+*Coming soon...*
 
 = Get Involved =
 
@@ -37,7 +37,7 @@ Developers can checkout and contribute to the source code on the DigiPass's [Git
 
 * [Plugin Homepage](https://github.com/Labs64/DigiPass "Plugin Homepage")
 * [Report a bug, or suggest an improvement](https://github.com/Labs64/DigiPass/issues "Plugin Issue Tracking")
-* [Labs64 Blog](http://www.labs64.com/blog "Read Labs64 Blog")
+* [Labs64 NetLicensing Blog](http://netlicensing.io/blog/ "Read Blog")
 
 == Installation ==
 
