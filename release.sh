@@ -72,6 +72,15 @@ echo
 echo ".........................................."
 echo
 
+# Check if composer installed
+if [ -f "composer.phar" ]
+  then
+	  echo "composer.phar found. Let's proceed...";
+  else
+		echo "composer.phar not found; please install composer (https://getcomposer.org). Exiting....";
+		exit 1;
+fi
+
 # Check version in readme.txt is the same as plugin file after translating both to unix line breaks to work around grep's failure to identify mac line breaks
 NEWVERSION1=`grep "^Stable tag:" $GITPATH/readme.txt | awk -F' ' '{print $NF}'`
 echo "readme.txt version: $NEWVERSION1"
@@ -88,7 +97,7 @@ if git show-ref --tags --quiet --verify -- "refs/tags/$NEWVERSION1"
 		echo "Version $NEWVERSION1 already exists as git tag. Exiting....";
 		exit 1;
 	else
-		echo "Git version does not exist. Let's proceed..."
+		echo "Git version $NEWVERSION1 does not exist. Let's proceed..."
 fi
 
 echo "Changing to $GITPATH"
@@ -136,6 +145,9 @@ fi
 ##### mv $SVNPATH/trunk/assets/* $SVNPATH/assets/
 ##### svn add $SVNPATH/assets/
 ##### svn delete $SVNPATH/trunk/assets
+
+echo "Generating composer dependencies in trunk"
+php composer.phar --working-dir=$SVNPATH/trunk/ update
 
 echo "Changing directory to SVN and committing to trunk"
 cd $SVNPATH/trunk/
