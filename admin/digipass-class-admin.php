@@ -240,7 +240,7 @@ class DigiPass_Admin extends BaseDigiPass
     {
         // validate features
         $nlic_connect = new \NetLicensing\NetLicensingAPI();
-        $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::API_KEY_IDENTIFICATION);
+        $nlic_connect->setSecurityMode(\NetLicensing\NetLicensingAPI::API_KEY_IDENTIFICATION);
         $nlic_connect->setApiKey(DIGIPASS_NLIC_API_KEY);
 
         $site_url = dp_strip_url(get_site_url(), 1000);
@@ -474,7 +474,7 @@ class DigiPass_Admin extends BaseDigiPass
         //check authorization
         try {
             $nlic_connect = new \NetLicensing\NetLicensingAPI();
-            $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
+            $nlic_connect->setSecurityMode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
             $nlic_connect->setUserName($username);
             $nlic_connect->setPassword($password);
 

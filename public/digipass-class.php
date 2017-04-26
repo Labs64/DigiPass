@@ -389,12 +389,17 @@ class DigiPass extends BaseDigiPass
 
                 //made connection object
                 $nlic_connect = new \NetLicensing\NetLicensingAPI();
-                $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
+                $nlic_connect->setSecurityMode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
                 $nlic_connect->setUserName($username);
                 $nlic_connect->setPassword($password);
 
                 $licensee_service = new \NetLicensing\LicenseeService($nlic_connect);
-                $validation = $licensee_service->validate($licensee_number, $nlic_connection->product_number, $current_user->user_login);
+
+                $validation_parameters = new \NetLicensing\ValidationParameters();
+                $validation_parameters->setProductNumber($nlic_connection->product_number);
+                $validation_parameters->setLicenseeName( $current_user->user_logi);
+
+                $validation = $licensee_service->validate($licensee_number, $validation_parameters);
 
                 if ($validation) {
                     foreach ($validation as $data) {
