@@ -22,7 +22,7 @@
     },
     "require": {
         "php": ">=5.3.2",
-        "Labs64/NetLicensingClient-php": "dev-master"
+        "Labs64/NetLicensingClient-php": "2.3.4"
     },
     "prefer-stable": true
 }

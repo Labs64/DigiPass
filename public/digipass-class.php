@@ -389,17 +389,13 @@ class DigiPass extends BaseDigiPass
 
                 //made connection object
                 $nlic_connect = new \NetLicensing\NetLicensingAPI();
-                $nlic_connect->setSecurityMode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
+                $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
                 $nlic_connect->setUserName($username);
                 $nlic_connect->setPassword($password);
 
                 $licensee_service = new \NetLicensing\LicenseeService($nlic_connect);
 
-                $validation_parameters = new \NetLicensing\ValidationParameters();
-                $validation_parameters->setProductNumber($nlic_connection->product_number);
-                $validation_parameters->setLicenseeName( $current_user->user_logi);
-
-                $validation = $licensee_service->validate($licensee_number, $validation_parameters);
+                $validation = $licensee_service->validate($licensee_number, $nlic_connection->product_number, $current_user->user_login);
 
                 if ($validation) {
                     foreach ($validation as $data) {
@@ -469,6 +465,7 @@ class DigiPass extends BaseDigiPass
                 }
 
             } catch (\NetLicensing\NetLicensingException $e) {
+                print_r($e->getMessage());
                 $message = __('Error contacting NetLicensing license server. Please contact your site administrator.', $this->plugin_slug);
 
                 //send error to site administrator
