@@ -21,7 +21,7 @@
         "docs": "https://wordpress.org/plugins/digipass/faq/"
     },
     "require": {
-        "php": ">=5.3.2",
+        "php": ">=5.6",
         "Labs64/NetLicensingClient-php": "2.3.7"
     },
     "prefer-stable": true
