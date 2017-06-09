@@ -387,21 +387,23 @@ class DigiPass extends BaseDigiPass
                 $username = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'username');
                 $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
-                //made connection object
-                $nlic_connect = new \NetLicensing\NetLicensingAPI();
-                $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
-                $nlic_connect->setUserName($username);
-                $nlic_connect->setPassword($password);
+                $context = new \NetLicensing\Context();
+                $context->setSecurityMode(\NetLicensing\Context::BASIC_AUTHENTICATION);
+                $context->setUsername($username);
+                $context->setPassword($password);
 
-                $licensee_service = new \NetLicensing\LicenseeService($nlic_connect);
+                $validationParameters = new \NetLicensing\ValidationParameters();
+                $validationParameters->setProductNumber($nlic_connection->product_number);
+                $validationParameters->setLicenseeName($current_user->user_login);
 
-                $validation = $licensee_service->validate($licensee_number, $nlic_connection->product_number, $current_user->user_login);
+                $validationResults = \NetLicensing\LicenseeService::validate($context, $licensee_number, $validationParameters);
+                $validations = $validationResults->getValidations();
 
-                if ($validation) {
-                    foreach ($validation as $data) {
-                        if ($data['productModuleNumber'] == $nlic_connection->product_module_number && $data['valid'] == 'true') {
-                            $last_response = $nlic_connect->getLastResponse();
-                            $xml = simplexml_load_string($last_response->body);
+                if ($validations) {
+                    foreach ($validations as $validation) {
+                        if ($validation['productModuleNumber'] == $nlic_connection->product_module_number && $validation['valid'] == 'true') {
+
+                            $xml = simplexml_load_string(\NetLicensing\NetLicensingService::getInstance()->lastCurlInfo()->response);
                             $ttl = (string)$xml['ttl'];
 
                             //save validation to db
@@ -431,26 +433,26 @@ class DigiPass extends BaseDigiPass
                     }
 
                     if (empty($shop_url)) {
-                        //create new token
-                        $token_service = new \NetLicensing\TokenService($nlic_connect);
 
+                        $token = new \NetLicensing\Token();
+                        $token->setTokenType('SHOP');
+                        $token->setLicenseeNumber($licensee_number);
                         //set Redirect properties
-                        $custom_properties = array(
-                            'successURL' => get_permalink($post->ID),
-                            'cancelURL' => get_permalink($post->ID)
-                        );
+                        $token->setSuccessURL(get_permalink($post->ID));
+                        $token->setCancelURL(get_permalink($post->ID));
 
-                        $token = $token_service->create('SHOP', $licensee_number, $custom_properties);
+                        //create new token
+                        $token = \NetLicensing\TokenService::create($context, $token);
 
                         //save to db
                         $wpdb->insert(DIGIPASS_TABLE_TOKENS, array(
                             'user_ID' => $current_user->ID,
                             'token_number' => $token->getNumber(),
                             'token_expiration' => strtotime($token->getExpirationTime()),
-                            'shop_url' => $token->getShopUrl()
+                            'shop_url' => $token->getShopURL()
                         ));
 
-                        $shop_url = $token->getShopUrl();
+                        $shop_url = $token->getShopURL();
                     }
 
                     if (empty($shop_url)) {
@@ -465,7 +467,7 @@ class DigiPass extends BaseDigiPass
                 }
 
             } catch (\NetLicensing\NetLicensingException $e) {
-                print_r($e->getMessage());
+
                 $message = __('Error contacting NetLicensing license server. Please contact your site administrator.', $this->plugin_slug);
 
                 //send error to site administrator

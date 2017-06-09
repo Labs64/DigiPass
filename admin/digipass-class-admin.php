@@ -175,7 +175,7 @@ class DigiPass_Admin extends BaseDigiPass
             $this->dp_print_feedback_section();
             ?>
         </div>
-    <?php
+        <?php
     }
 
     /**
@@ -185,7 +185,7 @@ class DigiPass_Admin extends BaseDigiPass
     {
         ?>
         <hr/>
-    <?php
+        <?php
     }
 
     /**
@@ -239,17 +239,19 @@ class DigiPass_Admin extends BaseDigiPass
     function digipass_validate_callback()
     {
         // validate features
-        $nlic_connect = new \NetLicensing\NetLicensingAPI();
-        $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::API_KEY_IDENTIFICATION);
-        $nlic_connect->setApiKey(DIGIPASS_NLIC_API_KEY);
+        $context = new \NetLicensing\Context();
+        $context->setSecurityMode(\NetLicensing\Context::APIKEY_IDENTIFICATION);
+        $context->setApiKey(DIGIPASS_NLIC_API_KEY);
 
         $site_url = dp_strip_url(get_site_url(), 1000);
 
-        $licensee_service = new \NetLicensing\LicenseeService($nlic_connect);
-        $validation = $licensee_service->validate($site_url, 'DP', urlencode($site_url));
+        $validationParameters = new \NetLicensing\ValidationParameters();
+        $validationParameters->setProductNumber('DP');
+        $validationParameters->setLicenseeName(urlencode($site_url));
 
-        $last_response = $nlic_connect->getLastResponse();
-        $xml = simplexml_load_string($last_response->body);
+        \NetLicensing\LicenseeService::validate($context, $site_url, $validationParameters);
+
+        $xml = simplexml_load_string(\NetLicensing\NetLicensingService::getInstance()->lastCurlInfo()->response);
 
         // NOTE: no NetLicensing response processing at the moment necessary; only product usage tracking functionality
 
@@ -285,7 +287,7 @@ class DigiPass_Admin extends BaseDigiPass
                     href="http://netlicensing.io/?ref=DigiPass"
                     target="_blank">NetLicensing</a></p>
         </div>
-    <?php
+        <?php
     }
 
     /**
@@ -307,7 +309,7 @@ class DigiPass_Admin extends BaseDigiPass
             </li>
             <li><a href="http://www.labs64.com/blog" target="_blank"><?php _e('Read Labs64 Blog'); ?></a></li>
         </ul>
-    <?php
+        <?php
     }
 
     /**
@@ -328,7 +330,7 @@ class DigiPass_Admin extends BaseDigiPass
             <li>- Enter NetLicensing credentials in the <i>'NetLicensing Connect'</i> section</li>
             <li>- While creating a new post or page select licensing model in the DigiPass meta box</li>
         </ul>
-    <?php
+        <?php
     }
 
     /**
@@ -473,12 +475,14 @@ class DigiPass_Admin extends BaseDigiPass
 
         //check authorization
         try {
-            $nlic_connect = new \NetLicensing\NetLicensingAPI();
-            $nlic_connect->setSecurityCode(\NetLicensing\NetLicensingAPI::BASIC_AUTHENTICATION);
-            $nlic_connect->setUserName($username);
-            $nlic_connect->setPassword($password);
 
-            $product_modules = \NetLicensing\ProductModuleService::connect($nlic_connect)->getList();
+            $context = new \NetLicensing\Context();
+            $context->setSecurityMode(\NetLicensing\Context::BASIC_AUTHENTICATION);
+            $context->setUsername($username);
+            $context->setPassword($password);
+
+            $product_modules = \NetLicensing\ProductModuleService::getList($context);
+
         } catch (\NetLicensing\NetLicensingException $e) {
             if ($e->getCode() == '401') {
                 echo __('<span style="color: red;">Authorization error</span><br/><br/>Check username and password on the DigiPass <a href="' . admin_url('options-general.php?page=digipass') . '">settings</a> page.', $this->plugin_slug);
@@ -578,10 +582,13 @@ class DigiPass_Admin extends BaseDigiPass
         $username = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'username');
         $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
-        $nlic_connect = new \NetLicensing\NetLicensingAPI();
-        $nlic_connect->setUserName($username);
-        $nlic_connect->setPassword($password);
-        $product_module = \NetLicensing\ProductModuleService::connect($nlic_connect)->get($product_module_number);
+        $context = new \NetLicensing\Context();
+        $context->setSecurityMode(\NetLicensing\Context::BASIC_AUTHENTICATION);
+        $context->setUsername($username);
+        $context->setPassword($password);
+
+
+        $product_module = \NetLicensing\ProductModuleService::get($context, $product_module_number);
 
         if (empty($product_module)) {
             throw new DigiPass_AdminExtension('Failed to save a product module number.');
@@ -589,7 +596,7 @@ class DigiPass_Admin extends BaseDigiPass
 
         return $wpdb->insert(DIGIPASS_TABLE_CONNECTIONS, array(
             'post_ID' => $post_ID,
-            'product_number' => $product_module->getProductNumber(),
+            'product_number' => $product_module->getProperty('productNumber'),
             'product_module_number' => $product_module->getNumber(),
         ), array('%d', '%s', '%s'));
     }
@@ -601,11 +608,12 @@ class DigiPass_Admin extends BaseDigiPass
         $username = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'username');
         $password = $this->_dp_get_single_option(self::DIGIPASS_OPTION_PREFIX . 'password');
 
-        $nlic_connect = new \NetLicensing\NetLicensingAPI();
-        $nlic_connect->setUserName($username);
-        $nlic_connect->setPassword($password);
+        $context = new \NetLicensing\Context();
+        $context->setSecurityMode(\NetLicensing\Context::BASIC_AUTHENTICATION);
+        $context->setUsername($username);
+        $context->setPassword($password);
 
-        $product_module = \NetLicensing\ProductModuleService::connect($nlic_connect)->get($product_module_number);
+        $product_module = \NetLicensing\ProductModuleService::get($context, $product_module_number);
 
         if (empty($product_module)) {
             throw new DigiPass_AdminExtension('Failed to update the product module number.');
@@ -613,7 +621,7 @@ class DigiPass_Admin extends BaseDigiPass
 
         return $wpdb->update(DIGIPASS_TABLE_CONNECTIONS, array(
             'post_ID' => $post_ID,
-            'product_number' => $product_module->getProductNumber(),
+            'product_number' => $product_module->getProperty('productNumber'),
             'product_module_number' => $product_module->getNumber(),
         ), array('post_ID' => $post_ID), array('%d', '%s', '%s'), array('%d'));
 
