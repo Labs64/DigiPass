@@ -42,6 +42,6 @@ Anyone and everyone is welcome to contribute. Dozens of developers have helped m
 ## Related Links
 
 * WordPress plugin page: [http://wordpress.org/plugins/DigiPass/](http://wordpress.org/plugins/DigiPass/)
-* NetLicensing page: [http://netlicensing.io](http://netlicensing.io)
+* NetLicensing page: [https://netlicensing.io](https://netlicensing.io)
 * Source: [https://github.com/Labs64/DigiPass](https://github.com/Labs64/DigiPass)
 * Author: [Labs64](http://www.labs64.com)
